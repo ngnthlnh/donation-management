@@ -23,4 +23,8 @@ public class Activity {
     private String location;
 
     private String imageUrl;
+
+    @ManyToOne
+    @JoinColumn(name = "event_id")
+    private Event event;
 }
