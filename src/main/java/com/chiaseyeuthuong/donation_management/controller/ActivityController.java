@@ -3,7 +3,8 @@ package com.chiaseyeuthuong.donation_management.controller;
 import com.chiaseyeuthuong.donation_management.service.ActivityService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 public class ActivityController {
@@ -23,6 +24,12 @@ public class ActivityController {
     @GetMapping("/activities/{slug}")
     public String getActivityDetail(@PathVariable String slug, Model model) {
         model.addAttribute("activity", activityService.getActivityBySlug(slug));
+        return "pages/activity-detail";
+    }
+
+    @GetMapping("/activities/id/{id}")
+    public String getActivityDetailById(@PathVariable Long id, Model model) {
+        model.addAttribute("activity", activityService.getActivityById(id));
         return "pages/activity-detail";
     }
 }

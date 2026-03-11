@@ -1549,3 +1549,264 @@ button {
         font-size: 34px;
     }
 }
+
+/* Compact flow refinements */
+.container {
+    max-width: 1140px;
+}
+
+.site-header {
+    padding: 12px 0;
+}
+
+.site-header .nav {
+    gap: 18px;
+}
+
+.site-header h2 {
+    font-size: 26px;
+}
+
+.site-header ul {
+    gap: 16px;
+}
+
+.site-header a {
+    font-size: 15px;
+}
+
+.btn {
+    margin-top: 12px;
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.home-hero,
+.page-hero,
+.section {
+    border-radius: 14px;
+}
+
+.compact-home-hero {
+    padding: 30px;
+    gap: 24px;
+}
+
+.hero-left h1 {
+    font-size: 44px;
+}
+
+.hero-left p,
+.page-hero p,
+.activity-detail-text {
+    font-size: 16px;
+}
+
+.hero-right img {
+    height: 420px;
+}
+
+.compact-actions {
+    gap: 10px;
+}
+
+.compact-section {
+    padding: 28px;
+}
+
+.section-title {
+    font-size: 30px;
+}
+
+.section-subtitle {
+    margin-bottom: 16px;
+}
+
+.compact-feature-grid,
+.compact-item-grid,
+.compact-showcase-grid,
+.compact-activity-list {
+    gap: 18px;
+}
+
+.compact-feature-card,
+.compact-item-card,
+.compact-showcase-card,
+.compact-campaign-card,
+.compact-detail-card-shell,
+.compact-summary-card-shell {
+    border-radius: 20px;
+}
+
+.compact-feature-card,
+.compact-item-card {
+    padding: 20px;
+}
+
+.compact-item-card h3,
+.compact-showcase-body h3,
+.compact-campaign-body h3,
+.summary-cover-overlay h3,
+.activity-detail-cover-overlay h2,
+.detail-section-header h3 {
+    font-size: 24px;
+}
+
+.compact-slider .slide img {
+    height: 360px;
+}
+
+.compact-panel-header {
+    padding: 20px 22px;
+}
+
+.compact-summary-chip {
+    min-width: 108px;
+    padding: 12px 14px;
+}
+
+.compact-summary-chip strong {
+    font-size: 24px;
+}
+
+.compact-campaign-image img,
+.compact-showcase-image img {
+    height: 210px;
+}
+
+.compact-campaign-body,
+.compact-showcase-body,
+.compact-summary-content,
+.compact-detail-content {
+    padding: 20px;
+}
+
+.compact-detail-grid {
+    gap: 18px;
+}
+
+.compact-hero-meta-grid,
+.compact-fact-grid {
+    gap: 12px;
+}
+
+.compact-meta-card,
+.compact-fact-card,
+.compact-funding-block {
+    border-radius: 16px;
+}
+
+.compact-meta-card,
+.compact-fact-card {
+    padding: 16px 18px;
+}
+
+.compact-progress-card strong,
+.summary-progress-head strong {
+    font-size: 30px;
+}
+
+.compact-progress-bar {
+    height: 10px;
+}
+
+.compact-progress-meta {
+    gap: 10px;
+    font-size: 12px;
+}
+
+.compact-list-header,
+.list-heading-row,
+.compact-card-topline {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    align-items: flex-start;
+}
+
+.compact-sticky-stack {
+    top: 20px;
+    gap: 16px;
+}
+
+.event-activities-layout,
+.activity-detail-layout {
+    grid-template-columns: minmax(0, 1.75fr) 320px;
+    gap: 20px;
+}
+
+.activity-detail-cover img {
+    height: 300px;
+}
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #e2e8f0;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.status-upcoming {
+    background: #ede9fe;
+    color: #6d28d9;
+}
+
+.status-ongoing {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-completed {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+@media (max-width: 1200px) {
+    .event-activities-layout,
+    .activity-detail-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .compact-home-hero,
+    .compact-section,
+    .compact-panel-header,
+    .compact-campaign-body,
+    .compact-showcase-body,
+    .compact-summary-content,
+    .compact-detail-content {
+        padding: 18px;
+    }
+
+    .hero-left h1,
+    .page-hero h1 {
+        font-size: 34px;
+    }
+
+    .compact-slider .slide img,
+    .hero-right img,
+    .compact-campaign-image img,
+    .compact-showcase-image img,
+    .activity-detail-cover img {
+        height: 220px;
+    }
+
+    .compact-list-header,
+    .list-heading-row,
+    .compact-card-topline,
+    .summary-progress-head,
+    .summary-progress-meta,
+    .activity-meta-row,
+    .summary-meta-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

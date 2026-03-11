@@ -126,7 +126,7 @@
                             </div>
                         </div>
 
-                        <a class="btn" th:href="@{'/activities/' + ${activity.slug}}">Xem chi tiết hoạt động</a>
+                        <a class="btn" th:href="${activity.slug != null and !#strings.isEmpty(activity.slug)} ? @{'/activities/' + ${activity.slug}} : @{'/activities/id/' + ${activity.id}}">Xem chi tiết hoạt động</a>
                     </div>
                 </article>
             </div>

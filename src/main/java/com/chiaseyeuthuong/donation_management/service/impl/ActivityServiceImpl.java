@@ -25,4 +25,9 @@ public class ActivityServiceImpl implements ActivityService {
     public Activity getActivityBySlug(String slug) {
         return activityRepository.findBySlug(slug).orElse(null);
     }
+
+    @Override
+    public Activity getActivityById(Long id) {
+        return activityRepository.findById(id).orElse(null);
+    }
 }
