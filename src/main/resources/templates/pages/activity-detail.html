@@ -6,16 +6,34 @@
 
 <main class="container">
     <section class="section" th:if="${activity != null}">
-        <h1 th:text="${activity.title}">Tên hoạt động</h1>
-        <p th:text="${activity.description}">Mô tả</p>
-        <p>
-            <strong>Địa điểm:</strong>
-            <span th:text="${activity.location}">Địa điểm</span>
-        </p>
+        <a class="back-link" th:href="@{/activities}">Quay lại danh sách hoạt động</a>
+
+        <div class="detail-card">
+            <span class="item-label">Hoạt động</span>
+            <h1 th:text="${activity.title}">Tên hoạt động</h1>
+
+            <p class="detail-meta">
+                <strong>Địa điểm:</strong>
+                <span th:text="${activity.location}">Địa điểm</span>
+            </p>
+
+            <div class="detail-content">
+                <p th:text="${activity.description}">Mô tả hoạt động</p>
+            </div>
+
+            <div class="detail-actions">
+                <a class="btn" th:href="@{/contact}">Liên hệ đồng hành</a>
+                <a class="btn btn-outline" th:href="@{/activities}">Xem thêm hoạt động</a>
+            </div>
+        </div>
     </section>
 
     <section class="section" th:if="${activity == null}">
-        <h2>Không tìm thấy hoạt động</h2>
+        <div class="empty-state">
+            <h2>Không tìm thấy hoạt động</h2>
+            <p>Hoạt động bạn đang tìm có thể không tồn tại hoặc đã bị xóa.</p>
+            <a class="btn" th:href="@{/activities}">Quay lại danh sách</a>
+        </div>
     </section>
 </main>
 

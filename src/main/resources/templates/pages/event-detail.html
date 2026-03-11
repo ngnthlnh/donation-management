@@ -1,18 +1,38 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/head :: head('Chi tiết sự kiện')"></head>
+<head th:replace="fragments/head :: head('Danh sách sự kiện')"></head>
 <body>
 <div th:replace="fragments/header :: header"></div>
 
 <main class="container">
-    <section class="section" th:if="${event != null}">
-        <h1 th:text="${event.title}">Tên sự kiện</h1>
-        <p th:text="${event.description}">Mô tả</p>
-        <p><strong>Địa điểm:</strong> <span th:text="${event.location}"></span></p>
+    <section class="page-hero">
+        <span class="hero-badge">Sự kiện</span>
+        <h1>Những chương trình đang được triển khai</h1>
+        <p>
+            Theo dõi các sự kiện, chiến dịch và chương trình nổi bật mà câu lạc bộ đang tổ chức.
+        </p>
     </section>
 
-    <section class="section" th:if="${event == null}">
-        <h2>Không tìm thấy sự kiện</h2>
+    <section class="section">
+        <h2 class="section-title">Danh sách sự kiện</h2>
+
+        <div th:if="${#lists.isEmpty(events)}" class="empty-state">
+            <h3>Chưa có sự kiện nào</h3>
+            <p>Dữ liệu sự kiện sẽ được cập nhật sớm.</p>
+        </div>
+
+        <div th:if="${!#lists.isEmpty(events)}" class="item-grid">
+            <div th:each="event : ${events}" class="item-card">
+                <span class="item-label">Sự kiện</span>
+                <h3 th:text="${event.title}">Tên sự kiện</h3>
+                <p th:text="${event.description}">Mô tả sự kiện</p>
+                <p class="item-meta">
+                    <strong>Địa điểm:</strong>
+                    <span th:text="${event.location}">Địa điểm</span>
+                </p>
+                <a class="btn" th:href="@{'/events/' + ${event.id}}">Xem chi tiết</a>
+            </div>
+        </div>
     </section>
 </main>
 

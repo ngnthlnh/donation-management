@@ -5,21 +5,33 @@
 <div th:replace="fragments/header :: header"></div>
 
 <main class="container">
-    <section class="section">
-        <h1>Danh sách hoạt động</h1>
+    <section class="page-hero">
+        <span class="hero-badge">Hoạt động</span>
+        <h1>Những hoạt động thiện nguyện nổi bật</h1>
+        <p>
+            Cập nhật các hoạt động mà câu lạc bộ đang thực hiện để hỗ trợ cộng đồng.
+        </p>
+    </section>
 
-        <div th:if="${#lists.isEmpty(activities)}">
-            <p>Chưa có hoạt động nào.</p>
+    <section class="section">
+        <h2 class="section-title">Danh sách hoạt động</h2>
+
+        <div th:if="${#lists.isEmpty(activities)}" class="empty-state">
+            <h3>Chưa có hoạt động nào</h3>
+            <p>Dữ liệu hoạt động sẽ được cập nhật sớm.</p>
         </div>
 
-        <div th:each="activity : ${activities}" class="section" style="margin-top: 20px;">
-            <h2 th:text="${activity.title}">Tên hoạt động</h2>
-            <p th:text="${activity.description}">Mô tả hoạt động</p>
-            <p>
-                <strong>Địa điểm:</strong>
-                <span th:text="${activity.location}">Địa điểm</span>
-            </p>
-            <a class="btn" th:href="@{'/activities/' + ${activity.id}}">Xem chi tiết</a>
+        <div th:if="${!#lists.isEmpty(activities)}" class="item-grid">
+            <div th:each="activity : ${activities}" class="item-card">
+                <span class="item-label">Hoạt động</span>
+                <h3 th:text="${activity.title}">Tên hoạt động</h3>
+                <p th:text="${activity.description}">Mô tả hoạt động</p>
+                <p class="item-meta">
+                    <strong>Địa điểm:</strong>
+                    <span th:text="${activity.location}">Địa điểm</span>
+                </p>
+                <a class="btn" th:href="@{'/activities/' + ${activity.id}}">Xem chi tiết</a>
+            </div>
         </div>
     </section>
 </main>
