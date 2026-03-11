@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head :: head('Liên hệ')"></head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<main class="container">
+    <section class="section">
+        <h1>Liên hệ</h1>
+        <form>
+            <label>Họ tên</label>
+            <input type="text" placeholder="Nhập họ tên">
+
+            <label>Email</label>
+            <input type="email" placeholder="Nhập email">
+
+            <label>Nội dung</label>
+            <textarea rows="5" placeholder="Nhập nội dung liên hệ"></textarea>
+
+            <button type="submit">Gửi liên hệ</button>
+        </form>
+    </section>
+</main>
+
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

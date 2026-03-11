@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head :: head('Chi tiết sự kiện')"></head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<main class="container">
+    <section class="section" th:if="${event != null}">
+        <h1 th:text="${event.title}">Tên sự kiện</h1>
+        <p th:text="${event.description}">Mô tả</p>
+        <p><strong>Địa điểm:</strong> <span th:text="${event.location}"></span></p>
+    </section>
+
+    <section class="section" th:if="${event == null}">
+        <h2>Không tìm thấy sự kiện</h2>
+    </section>
+</main>
+
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>
