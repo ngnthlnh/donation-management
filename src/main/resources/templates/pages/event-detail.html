@@ -58,7 +58,8 @@
                          class="campaign-card compact-campaign-card"
                          th:with="raised=${activity.currentAmount != null ? activity.currentAmount : 0},
                                   target=${activity.targetAmount != null ? activity.targetAmount : 0},
-                                  progress=${target > 0 ? T(java.lang.Math).min(100.0, (raised * 100.0) / target) : 0},
+                                  rawProgress=${target > 0 ? (raised * 100.0) / target : 0},
+                                  progress=${rawProgress > 100 ? 100 : rawProgress},
                                   statusText=${activity.status != null ? (activity.status.name() == 'UPCOMING' ? 'Sắp diễn ra' : (activity.status.name() == 'ONGOING' ? 'Đang diễn ra' : 'Đã hoàn thành')) : 'Đang cập nhật'},
                                   dateRange=${(activity.startDate != null ? #temporals.format(activity.startDate, 'dd/MM/yyyy') : 'Chưa rõ') + ' - ' + (activity.endDate != null ? #temporals.format(activity.endDate, 'dd/MM/yyyy') : 'Chưa rõ')}">
                     <div class="campaign-image compact-campaign-image">
@@ -141,7 +142,8 @@
             <aside class="event-summary-card compact-summary-card-shell"
                    th:with="raised=${event.raisedAmount != null ? event.raisedAmount : 0},
                             target=${event.targetAmount != null ? event.targetAmount : 0},
-                            progress=${target > 0 ? T(java.lang.Math).min(100.0, (raised * 100.0) / target) : 0}">
+                            rawProgress=${target > 0 ? (raised * 100.0) / target : 0},
+                            progress=${rawProgress > 100 ? 100 : rawProgress}">
                 <div class="summary-cover compact-summary-cover">
                     <img th:if="${event.imageUrl != null and !#strings.isEmpty(event.imageUrl)}"
                          th:src="${event.imageUrl}"

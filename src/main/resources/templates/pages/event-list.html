@@ -32,7 +32,8 @@
                  class="item-card compact-item-card"
                  th:with="raised=${event.raisedAmount != null ? event.raisedAmount : 0},
                           target=${event.targetAmount != null ? event.targetAmount : 0},
-                          progress=${target > 0 ? T(java.lang.Math).min(100.0, (raised * 100.0) / target) : 0}">
+                          rawProgress=${target > 0 ? (raised * 100.0) / target : 0},
+                          progress=${rawProgress > 100 ? 100 : rawProgress}">
                 <span class="item-label">Sự kiện</span>
                 <h3 th:text="${event.title}">Tên sự kiện</h3>
                 <p th:text="${event.description}">Mô tả sự kiện</p>
