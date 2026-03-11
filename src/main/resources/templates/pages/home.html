@@ -5,22 +5,21 @@
 <div th:replace="fragments/header :: header"></div>
 
 <main class="container">
-    <!-- HERO SECTION -->
-    <section class="home-hero">
+    <section class="home-hero compact-home-hero">
         <div class="hero-left">
             <span class="hero-badge">Câu lạc bộ thiện nguyện</span>
             <h1>
-                Cùng nhau lan tỏa
-                <span>hy vọng</span>
+                Kết nối những
+                <span>sự kiện sẻ chia</span>
             </h1>
             <p>
-                Kết nối những tấm lòng hảo tâm với các hoạt động ý nghĩa,
-                góp phần hỗ trợ cộng đồng và xây dựng những giá trị tốt đẹp.
+                Bắt đầu từ trang sự kiện, người xem có thể theo dõi từng hoạt động cụ thể,
+                xem tiến độ kinh phí và đi sâu vào nội dung chi tiết của chương trình đang diễn ra.
             </p>
 
-            <div class="hero-actions">
-                <a class="btn" th:href="@{/events}">Xem sự kiện</a>
-                <a class="btn btn-outline" th:href="@{/activities}">Xem hoạt động</a>
+            <div class="hero-actions compact-actions">
+                <a class="btn" th:href="@{/events}">Khám phá sự kiện</a>
+                <a class="btn btn-outline" th:href="@{/contact}">Liên hệ đồng hành</a>
             </div>
         </div>
 
@@ -29,14 +28,36 @@
         </div>
     </section>
 
-    <!-- IMAGE SLIDER / CAROUSEL -->
-    <section class="section">
-        <h2 class="section-title">Hoạt động nổi bật của câu lạc bộ</h2>
+    <section class="section compact-section">
+        <h2 class="section-title">Hành trình theo dõi chương trình</h2>
+        <div class="feature-grid compact-feature-grid">
+            <div class="feature-card compact-feature-card">
+                <h3>1. Chọn sự kiện</h3>
+                <p>Từ trang sự kiện, người xem nắm bối cảnh chung và chọn chương trình phù hợp để tìm hiểu.</p>
+                <a class="btn" th:href="@{/events}">Xem sự kiện</a>
+            </div>
+
+            <div class="feature-card compact-feature-card">
+                <h3>2. Xem danh sách hoạt động</h3>
+                <p>Mỗi sự kiện sẽ hiển thị các hoạt động liên quan cùng trạng thái, thời gian và tiến độ kinh phí.</p>
+                <a class="btn btn-outline" th:href="@{/events}">Tới danh sách sự kiện</a>
+            </div>
+
+            <div class="feature-card compact-feature-card">
+                <h3>3. Đi vào hoạt động cụ thể</h3>
+                <p>Tại trang chi tiết hoạt động, người xem theo dõi nội dung triển khai và mức kinh phí đã tiếp nhận.</p>
+                <a class="btn btn-outline" th:href="@{/contact}">Liên hệ hỗ trợ</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="section compact-section">
+        <h2 class="section-title">Một số hình ảnh tiêu biểu</h2>
         <p class="section-subtitle">
-            Một số hình ảnh tiêu biểu trong các chương trình thiện nguyện gần đây
+            Góc nhìn nhanh về các chương trình thiện nguyện gần đây của câu lạc bộ.
         </p>
 
-        <div class="slider">
+        <div class="slider compact-slider">
             <div class="slides" id="slides">
                 <div class="slide">
                     <img th:src="@{/images/activity1.jpg}" alt="Hoạt động 1">
@@ -65,30 +86,6 @@
             <span class="dot" onclick="goToSlide(1)"></span>
             <span class="dot" onclick="goToSlide(2)"></span>
             <span class="dot" onclick="goToSlide(3)"></span>
-        </div>
-    </section>
-
-    <!-- QUICK INTRO -->
-    <section class="section">
-        <h2 class="section-title">Khám phá hệ thống</h2>
-        <div class="feature-grid">
-            <div class="feature-card">
-                <h3>Sự kiện</h3>
-                <p>Theo dõi các chương trình và chiến dịch gây quỹ đang diễn ra.</p>
-                <a class="btn" th:href="@{/events}">Xem sự kiện</a>
-            </div>
-
-            <div class="feature-card">
-                <h3>Hoạt động</h3>
-                <p>Cập nhật những hoạt động thiện nguyện nổi bật của câu lạc bộ.</p>
-                <a class="btn" th:href="@{/activities}">Xem hoạt động</a>
-            </div>
-
-            <div class="feature-card">
-                <h3>Đóng góp</h3>
-                <p>Đồng hành cùng câu lạc bộ để lan tỏa yêu thương đến cộng đồng.</p>
-                <a class="btn" th:href="@{/contact}">Liên hệ ngay</a>
-            </div>
         </div>
     </section>
 </main>

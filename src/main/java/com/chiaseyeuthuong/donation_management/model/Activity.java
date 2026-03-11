@@ -1,7 +1,21 @@
 package com.chiaseyeuthuong.donation_management.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Data;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "activities")
@@ -12,23 +26,49 @@ public class Activity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;
+    @Column(name = "name")
+    private String name;
 
     @Column(unique = true)
     private String slug;
 
-    @Column(length = 2000)
     private String description;
 
-    private String location;
+    @Column(name = "short_description")
+    private String shortDescription;
 
-    private String imageUrl;
+    @Lob
+    @Column(name = "content")
+    private String content;
+
+    @Column(name = "thumbnail_url")
+    private String thumbnailUrl;
+
+    @Column(name = "start_date")
+    private LocalDate startDate;
+
+    @Column(name = "end_date")
+    private LocalDate endDate;
+
+    @Enumerated(EnumType.STRING)
+    private ActivityStatus status;
+
+    @Column(name = "target_amount", precision = 38, scale = 2)
+    private BigDecimal targetAmount;
+
+    @Column(name = "current_amount", precision = 38, scale = 2)
+    private BigDecimal currentAmount;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
 
     @ManyToOne
     @JoinColumn(name = "event_id")
     private Event event;
-
-    private Double targetAmount;
-
-    private Double raisedAmount;
 }

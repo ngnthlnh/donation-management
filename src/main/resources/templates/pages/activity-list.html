@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="fragments/head :: head('Danh sách hoạt động')"></head>
 <body>
@@ -6,35 +6,36 @@
 
 <main class="container">
     <section class="page-hero compact-hero activity-hero-shell">
-        <div class="activity-hero-grid">
+        <div class="activity-hero-grid compact-detail-grid">
             <div>
                 <span class="hero-badge activity-badge">Hoạt động</span>
-                <h1>Những hoạt động đang kết nối yêu thương tới cộng đồng</h1>
+                <h1>Thư viện hoạt động đang được triển khai</h1>
                 <p>
-                    Theo dõi các hoạt động thiện nguyện nổi bật, nắm nhanh quy mô hỗ trợ và lựa chọn chương trình phù hợp để đồng hành.
+                    Trang này tổng hợp toàn bộ hoạt động để tham khảo nhanh, nhưng luồng chính vẫn là đi từ sự kiện
+                    vào danh sách hoạt động rồi xem chi tiết từng hoạt động cụ thể.
                 </p>
             </div>
 
             <div class="activity-hero-stats">
-                <div class="activity-stat-card">
+                <div class="activity-stat-card compact-stat-card">
                     <strong th:text="${#lists.size(activities)}">0</strong>
-                    <span>Hoạt động đang mở</span>
+                    <span>Hoạt động đang hiển thị</span>
                 </div>
-                <div class="activity-stat-card">
+                <div class="activity-stat-card compact-stat-card">
                     <strong>Minh bạch</strong>
-                    <span>Theo dõi kinh phí mục tiêu và đã tiếp nhận</span>
+                    <span>Mỗi hoạt động đều có trạng thái, thời gian và tiến độ kinh phí.</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="section activity-list-shell">
-        <div class="activity-list-header">
+    <section class="section activity-list-shell compact-section">
+        <div class="activity-list-header compact-list-header">
             <div>
                 <h2 class="section-title">Danh sách hoạt động</h2>
-                <p class="section-subtitle">Mỗi hoạt động đều hiển thị tiến độ kinh phí và sự kiện liên kết để người xem theo dõi thuận tiện hơn.</p>
+                <p class="section-subtitle">Hiển thị theo đúng các trường chính của bảng hoạt động: tên, mô tả ngắn, thời gian, trạng thái và kinh phí.</p>
             </div>
-            <div class="activity-list-chip">Cập nhật liên tục</div>
+            <div class="activity-list-chip">Xem tốt nhất từ trang sự kiện</div>
         </div>
 
         <div th:if="${#lists.isEmpty(activities)}" class="empty-state">
@@ -42,42 +43,48 @@
             <p>Dữ liệu hoạt động sẽ được cập nhật sớm.</p>
         </div>
 
-        <div th:if="${!#lists.isEmpty(activities)}" class="activity-showcase-grid">
+        <div th:if="${!#lists.isEmpty(activities)}" class="activity-showcase-grid compact-showcase-grid">
             <article th:each="activity, iterStat : ${activities}"
-                     class="activity-showcase-card"
-                     th:with="raised=${activity.raisedAmount != null ? activity.raisedAmount : 0},
+                     class="activity-showcase-card compact-showcase-card"
+                     th:with="raised=${activity.currentAmount != null ? activity.currentAmount : 0},
                               target=${activity.targetAmount != null ? activity.targetAmount : 0},
-                              progress=${target > 0 ? T(java.lang.Math).min(100.0, (raised * 100.0) / target) : 0}">
-                <div class="activity-showcase-image">
-                    <img th:if="${activity.imageUrl != null and !#strings.isEmpty(activity.imageUrl)}"
-                         th:src="${activity.imageUrl}"
-                         th:alt="${activity.title}">
-                    <img th:unless="${activity.imageUrl != null and !#strings.isEmpty(activity.imageUrl)}"
+                              progress=${target > 0 ? T(java.lang.Math).min(100.0, (raised * 100.0) / target) : 0},
+                              statusText=${activity.status != null ? (activity.status.name() == 'UPCOMING' ? 'Sắp diễn ra' : (activity.status.name() == 'ONGOING' ? 'Đang diễn ra' : 'Đã hoàn thành')) : 'Đang cập nhật'},
+                              dateRange=${(activity.startDate != null ? #temporals.format(activity.startDate, 'dd/MM/yyyy') : 'Chưa rõ') + ' - ' + (activity.endDate != null ? #temporals.format(activity.endDate, 'dd/MM/yyyy') : 'Chưa rõ')}">
+                <div class="activity-showcase-image compact-showcase-image">
+                    <img th:if="${activity.thumbnailUrl != null and !#strings.isEmpty(activity.thumbnailUrl)}"
+                         th:src="${activity.thumbnailUrl}"
+                         th:alt="${activity.name}">
+                    <img th:unless="${activity.thumbnailUrl != null and !#strings.isEmpty(activity.thumbnailUrl)}"
                          th:src="@{/images/activity1.jpg}"
-                         th:alt="${activity.title}">
+                         th:alt="${activity.name}">
                     <span class="campaign-badge" th:text="${'Hoạt động ' + iterStat.count}">Hoạt động 1</span>
                 </div>
 
-                <div class="activity-showcase-body">
-                    <div class="activity-card-topline">
+                <div class="activity-showcase-body compact-showcase-body">
+                    <div class="activity-card-topline compact-card-topline">
                         <span class="item-label">Hoạt động</span>
-                        <span class="activity-mini-tag"
-                              th:text="${activity.event != null ? 'Thuộc sự kiện' : 'Hoạt động độc lập'}">
-                            Thuộc sự kiện
+                        <span class="status-pill"
+                              th:classappend="${activity.status != null ? (activity.status.name() == 'UPCOMING' ? ' status-upcoming' : (activity.status.name() == 'COMPLETED' ? ' status-completed' : ' status-ongoing')) : ''}"
+                              th:text="${statusText}">
+                            Đang diễn ra
                         </span>
                     </div>
 
-                    <h3 th:text="${activity.title}">Tên hoạt động</h3>
-                    <p class="activity-showcase-description" th:text="${activity.description}">Mô tả hoạt động</p>
+                    <h3 th:text="${activity.name}">Tên hoạt động</h3>
+                    <p class="activity-showcase-description"
+                       th:text="${activity.shortDescription != null and !#strings.isEmpty(activity.shortDescription) ? activity.shortDescription : activity.description}">
+                        Mô tả ngắn
+                    </p>
 
-                    <div class="activity-meta-stack">
+                    <div class="activity-meta-stack compact-meta-stack">
                         <div class="activity-meta-row">
-                            <span>Địa điểm</span>
-                            <strong th:text="${activity.location != null and !#strings.isEmpty(activity.location) ? activity.location : 'Đang cập nhật'}">Địa điểm</strong>
+                            <span>Thời gian</span>
+                            <strong th:text="${dateRange}">01/01/2026 - 10/01/2026</strong>
                         </div>
-                        <div class="activity-meta-row" th:if="${activity.event != null}">
+                        <div class="activity-meta-row">
                             <span>Sự kiện liên kết</span>
-                            <strong th:text="${activity.event.title}">Tên sự kiện</strong>
+                            <strong th:text="${activity.event != null ? activity.event.title : 'Hoạt động độc lập'}">Tên sự kiện</strong>
                         </div>
                     </div>
 
@@ -93,11 +100,11 @@
                             </span>
                         </div>
 
-                        <div class="progress-bar">
+                        <div class="progress-bar compact-progress-bar">
                             <div class="progress-fill" th:style="|width:${progress}%|"></div>
                         </div>
 
-                        <div class="funding-stat-grid">
+                        <div class="funding-stat-grid compact-funding-grid">
                             <div class="funding-stat">
                                 <span>Kinh phí mục tiêu</span>
                                 <strong th:text="${target > 0 ? #numbers.formatDecimal(target, 0, 'COMMA', 0, 'POINT') + ' VNĐ' : 'Đang cập nhật'}">10.000.000 VNĐ</strong>
@@ -109,11 +116,11 @@
                         </div>
                     </div>
 
-                    <div class="activity-card-actions">
+                    <div class="activity-card-actions compact-card-actions">
                         <a class="btn" th:href="@{'/activities/' + ${activity.slug}}">Xem chi tiết</a>
                         <a class="btn btn-outline"
                            th:if="${activity.event != null}"
-                           th:href="@{'/events/' + ${activity.event.slug}}">Xem sự kiện</a>
+                           th:href="@{'/events/' + ${activity.event.slug}}">Về sự kiện</a>
                     </div>
                 </div>
             </article>
@@ -124,4 +131,3 @@
 <div th:replace="fragments/footer :: footer"></div>
 </body>
 </html>
-
