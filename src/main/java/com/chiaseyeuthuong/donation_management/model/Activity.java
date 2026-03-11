@@ -14,6 +14,9 @@ public class Activity {
 
     private String title;
 
+    @Column(unique = true)
+    private String slug;
+
     @Column(length = 2000)
     private String description;
 

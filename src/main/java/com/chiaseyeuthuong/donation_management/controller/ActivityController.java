@@ -20,9 +20,9 @@ public class ActivityController {
         return "pages/activity-list";
     }
 
-    @GetMapping("/activities/{id}")
-    public String getActivityDetail(@PathVariable Long id, Model model) {
-        model.addAttribute("activity", activityService.getActivityById(id));
+    @GetMapping("/activities/{slug}")
+    public String getActivityDetail(@PathVariable String slug, Model model) {
+        model.addAttribute("activity", activityService.getActivityBySlug(slug));
         return "pages/activity-detail";
     }
 }

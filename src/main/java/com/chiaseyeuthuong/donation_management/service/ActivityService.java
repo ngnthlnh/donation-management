@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface ActivityService {
     List<Activity> getAllActivities();
-    Activity getActivityById(Long id);
+    Activity getActivityBySlug(String slug);
 }
