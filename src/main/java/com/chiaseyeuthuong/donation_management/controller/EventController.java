@@ -20,9 +20,9 @@ public class EventController {
         return "pages/event-list";
     }
 
-    @GetMapping("/events/{id}")
-    public String getEventDetail(@PathVariable Long id, Model model) {
-        model.addAttribute("event", eventService.getEventById(id));
+    @GetMapping("/events/{slug}")
+    public String getEventDetail(@PathVariable String slug, Model model) {
+        model.addAttribute("event", eventService.getEventBySlug(slug));
         return "pages/event-detail";
     }
 }

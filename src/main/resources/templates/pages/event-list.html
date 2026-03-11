@@ -30,7 +30,7 @@
                     <strong>Địa điểm:</strong>
                     <span th:text="${event.location}">Địa điểm</span>
                 </p>
-                <a class="btn" th:href="@{'/events/' + ${event.id}}">Xem chi tiết</a>
+                <a class="btn" th:href="@{'/events/' + ${event.slug}}">Xem chi tiết</a>
             </div>
         </div>
     </section>

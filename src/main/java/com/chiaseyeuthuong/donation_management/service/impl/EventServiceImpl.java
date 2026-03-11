@@ -22,7 +22,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Event getEventById(Long id) {
-        return eventRepository.findById(id).orElse(null);
+    public Event getEventBySlug(String slug) {
+        return eventRepository.findBySlug(slug).orElse(null);
     }
 }
