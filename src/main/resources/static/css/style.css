@@ -483,3 +483,155 @@ button {
         font-size: 26px;
     }
 }
+
+.compact-hero {
+    padding: 28px 32px;
+}
+
+.event-activities-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    margin-top: 24px;
+    align-items: start;
+}
+
+.activities-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.panel-header {
+    background: white;
+    padding: 28px;
+    border-radius: 16px;
+}
+
+.activity-card-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.campaign-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.campaign-image img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+}
+
+.campaign-body {
+    padding: 22px;
+}
+
+.campaign-body h3 {
+    font-size: 26px;
+    margin: 12px 0 10px;
+    color: #111827;
+}
+
+.campaign-body p {
+    color: #4b5563;
+    margin-bottom: 10px;
+}
+
+.event-summary-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+    position: sticky;
+    top: 20px;
+}
+
+.summary-cover img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+}
+
+.summary-content {
+    padding: 24px;
+}
+
+.summary-content h3 {
+    font-size: 30px;
+    margin: 12px 0 16px;
+    color: #111827;
+}
+
+.funding-block {
+    margin: 18px 0;
+    padding: 16px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+}
+
+.funding-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 10px;
+    color: #374151;
+}
+
+.funding-row strong {
+    color: #111827;
+    text-align: right;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0b5ed7, #2563eb);
+    border-radius: 999px;
+    width: 0;
+}
+
+.summary-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.full-btn {
+    width: 100%;
+    text-align: center;
+}
+
+@media (max-width: 1200px) {
+    .activity-card-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 992px) {
+    .event-activities-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .event-summary-card {
+        position: static;
+    }
+}

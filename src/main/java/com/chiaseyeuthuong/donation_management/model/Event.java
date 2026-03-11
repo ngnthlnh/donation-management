@@ -23,4 +23,8 @@ public class Event {
     private String location;
 
     private String imageUrl;
+
+    private Double targetAmount;
+
+    private Double raisedAmount;
 }

@@ -27,4 +27,8 @@ public class Activity {
     @ManyToOne
     @JoinColumn(name = "event_id")
     private Event event;
+
+    private Double targetAmount;
+
+    private Double raisedAmount;
 }
