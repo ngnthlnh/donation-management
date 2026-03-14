@@ -1,35 +1,23 @@
-package com.chiaseyeuthuong.donation_management.controller;
+package com.chiaseyeuthuong.controller;
 
-import com.chiaseyeuthuong.donation_management.service.ActivityService;
+import com.chiaseyeuthuong.service.ActivityService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
+@RequiredArgsConstructor
 public class ActivityController {
 
     private final ActivityService activityService;
 
-    public ActivityController(ActivityService activityService) {
-        this.activityService = activityService;
-    }
-
-    @GetMapping("/activities")
-    public String getAllActivities(Model model) {
-        model.addAttribute("activities", activityService.getAllActivities());
-        return "pages/activity-list";
-    }
-
     @GetMapping("/activities/{slug}")
-    public String getActivityDetail(@PathVariable String slug, Model model) {
+    public String showActivityDetailPage(@PathVariable String slug, Model model) {
+
         model.addAttribute("activity", activityService.getActivityBySlug(slug));
-        return "pages/activity-detail";
+        return "pages/web/activity-detail";
     }
 
-    @GetMapping("/activities/id/{id}")
-    public String getActivityDetailById(@PathVariable Long id, Model model) {
-        model.addAttribute("activity", activityService.getActivityById(id));
-        return "pages/activity-detail";
-    }
 }

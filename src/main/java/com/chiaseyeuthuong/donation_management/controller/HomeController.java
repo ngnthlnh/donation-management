@@ -1,23 +1,14 @@
-package com.chiaseyeuthuong.donation_management.controller;
+package com.chiaseyeuthuong.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
+@RequestMapping("/")
 public class HomeController {
-
-    @GetMapping("/")
-    public String home() {
-        return "pages/home";
-    }
-
-    @GetMapping("/about")
-    public String about() {
-        return "pages/about";
-    }
-
-    @GetMapping("/contact")
-    public String contact() {
-        return "pages/contact";
+    @GetMapping
+    public String showHomePage() {
+        return "pages/web/index";
     }
 }

@@ -1,39 +1,32 @@
-package com.chiaseyeuthuong.donation_management.controller;
+package com.chiaseyeuthuong.controller;
 
-import com.chiaseyeuthuong.donation_management.model.Event;
-import com.chiaseyeuthuong.donation_management.repository.ActivityRepository;
-import com.chiaseyeuthuong.donation_management.service.EventService;
+import com.chiaseyeuthuong.dto.response.EventResponse;
+import com.chiaseyeuthuong.service.EventService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.List;
 
 @Controller
+@RequiredArgsConstructor
+@RequestMapping("/events")
 public class EventController {
 
     private final EventService eventService;
-    private final ActivityRepository activityRepository;
 
-    public EventController(EventService eventService, ActivityRepository activityRepository) {
-        this.eventService = eventService;
-        this.activityRepository = activityRepository;
+    @GetMapping
+    public String showEventPage(Model model) {
+        return "pages/web/events";
     }
 
-    @GetMapping("/events")
-    public String getAllEvents(Model model) {
-        model.addAttribute("events", eventService.getAllEvents());
-        return "pages/event-list";
+    @GetMapping("/{slug}")
+    public String showEventDetailPage(@PathVariable("slug") String slug, Model model) {
+        model.addAttribute("event", eventService.getEventBySlug(slug));
+        return "pages/web/event-detail";
     }
 
-    @GetMapping("/events/{slug}")
-    public String getEventDetail(@PathVariable String slug, Model model) {
-        Event event = eventService.getEventBySlug(slug);
-
-        model.addAttribute("event", event);
-
-        if (event != null) {
-            model.addAttribute("activities", activityRepository.findByEvent(event));
-        }
-
-        return "pages/event-detail";
-    }
 }

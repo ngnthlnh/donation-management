@@ -1,25 +1,23 @@
-package com.chiaseyeuthuong.donation_management.model;
+package com.chiaseyeuthuong.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.Data;
+import com.chiaseyeuthuong.common.EActivityStatus;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "activities")
-@Data
 public class Activity {
 
     @Id
@@ -29,20 +27,17 @@ public class Activity {
     @Column(name = "name")
     private String name;
 
-    @Column(unique = true)
+    @Column(name = "slug", unique = true)
     private String slug;
-
-    private String description;
 
     @Column(name = "short_description")
     private String shortDescription;
 
-    @Lob
-    @Column(name = "content")
-    private String content;
+    @Column(name = "location")
+    private String location;
 
-    @Column(name = "thumbnail_url")
-    private String thumbnailUrl;
+    @Column(name = "description")
+    private String description;
 
     @Column(name = "start_date")
     private LocalDate startDate;
@@ -50,23 +45,35 @@ public class Activity {
     @Column(name = "end_date")
     private LocalDate endDate;
 
-    @Enumerated(EnumType.STRING)
-    private ActivityStatus status;
-
-    @Column(name = "target_amount", precision = 38, scale = 2)
-    private BigDecimal targetAmount;
-
-    @Column(name = "current_amount", precision = 38, scale = 2)
+    @Column(name = "current_amount")
     private BigDecimal currentAmount;
 
-    @Column(name = "created_at")
+    @Column(name = "target_amount")
+    private BigDecimal targetAmount;
+
+    @Column(name = "content", columnDefinition = "TEXT")
+    private String content;
+
+    @Column(name = "thumbnail_url")
+    private String thumbnailUrl;
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private EActivityStatus status;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
+
+    @OneToMany(mappedBy = "activity")
+    private List<Donation> donations = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "event_id")
