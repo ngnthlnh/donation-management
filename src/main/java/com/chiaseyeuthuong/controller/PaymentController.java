@@ -1,0 +1,48 @@
+package com.chiaseyeuthuong.controller;
+
+import com.chiaseyeuthuong.model.Donation;
+import com.chiaseyeuthuong.exception.ResourceNotFoundException;
+import com.chiaseyeuthuong.service.ActivityService;
+import com.chiaseyeuthuong.service.DonationService;
+import com.chiaseyeuthuong.service.DonorService;
+import com.chiaseyeuthuong.service.EventService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+@Controller
+@Slf4j(topic = "PAYMENT-CONTROLLER")
+@RequiredArgsConstructor
+public class PaymentController {
+
+    private final DonationService donationService;
+    private final DonorService donorService;
+    private final EventService eventService;
+    private final ActivityService activityService;
+
+    @GetMapping("/thanh-toan/thanh-cong")
+    public String showSuccessPaymentPage(@RequestParam("orderCode") long orderCode, Model model) {
+        try {
+            Donation donation = donationService.getDonationByOrderCode(orderCode);
+
+            model.addAttribute("donor", donation.getDonor());
+            model.addAttribute("donation", donation);
+
+            return "pages/web/payment-success";
+        } catch (ResourceNotFoundException e) {
+            log.warn("Donation not found for success page orderCode={}", orderCode);
+            return "redirect:/thanh-toan/that-bai";
+        }
+    }
+
+    @GetMapping("/thanh-toan/that-bai")
+    public String showHomePage(Model model) {
+        model.addAttribute("totalDonors", donorService.getDorCountByObjectId(null, null));
+        model.addAttribute("totalEvents", eventService.getEventCount(null));
+        model.addAttribute("totalActivities", activityService.getActivityCount());
+        return "pages/web/index";
+    }
+}

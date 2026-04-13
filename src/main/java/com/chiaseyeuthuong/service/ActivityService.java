@@ -1,0 +1,45 @@
+package com.chiaseyeuthuong.service;
+
+import com.chiaseyeuthuong.common.EActivityStatus;
+import com.chiaseyeuthuong.dto.request.ActivityRequest;
+import com.chiaseyeuthuong.dto.response.ActivityDetailTabsSummaryResponse;
+import com.chiaseyeuthuong.dto.response.ActivityResponse;
+import com.chiaseyeuthuong.dto.response.DonationResponse;
+import com.chiaseyeuthuong.dto.response.DonorResponse;
+import com.chiaseyeuthuong.dto.response.PageResponse;
+import com.chiaseyeuthuong.model.Activity;
+import com.chiaseyeuthuong.model.Donation;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+public interface ActivityService {
+    PageResponse<ActivityResponse> getAllActivities(int page, int size, String search, EActivityStatus status, boolean excludeDraft);
+
+    List<ActivityResponse> getAllActivitiesByEventId(Long eventId);
+
+    PageResponse<ActivityResponse> getActivitiesByEventId(Long eventId, int page, int size);
+
+    Long saveActivity(ActivityRequest request);
+
+    Activity getActivity(Long id);
+
+    ActivityResponse getActivityById(Long id);
+
+    ActivityResponse getActivityBySlug(String slug);
+
+    ActivityResponse getPublicActivityBySlug(String slug);
+
+    void updateCurrentAmount(Activity activity, BigDecimal amount);
+
+    String saveThumbnailUrl(Long id, MultipartFile file);
+
+    long getActivityCount();
+
+    ActivityDetailTabsSummaryResponse getActivityDetailTabsSummary(Long activityId);
+
+    PageResponse<DonorResponse> getActivityDetailDonors(Long activityId, int page, int size);
+
+    PageResponse<DonationResponse> getActivityDetailDonations(Long activityId, int page, int size);
+}

@@ -1,0 +1,579 @@
+-- donation.attachments definition
+
+CREATE TABLE `attachments` (
+                               `id` bigint NOT NULL AUTO_INCREMENT,
+                               `object_id` bigint DEFAULT NULL,
+                               `file_url` varchar(500) NOT NULL,
+                               `file_name` varchar(255) DEFAULT NULL,
+                               `entity_type` enum('ACTIVITY','DONATION','EVENT','POST') NOT NULL,
+                               `file_type` enum('DOCUMENT','IMAGE','PDF','VIDEO') DEFAULT NULL,
+                               PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- donation.categories definition
+
+CREATE TABLE `categories` (
+                              `id` int NOT NULL AUTO_INCREMENT,
+                              `name` varchar(255) NOT NULL,
+                              `slug` varchar(255) NOT NULL,
+                              PRIMARY KEY (`id`),
+                              UNIQUE KEY `uk_categories_slug` (`slug`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- donation.events definition
+
+CREATE TABLE `events` (
+                          `current_amount` decimal(38,2) DEFAULT NULL,
+                          `end_date` date DEFAULT NULL,
+                          `number_of_activities` int DEFAULT NULL,
+                          `start_date` date DEFAULT NULL,
+                          `target_amount` decimal(38,2) DEFAULT NULL,
+                          `completed_at` datetime(6) DEFAULT NULL,
+                          `created_at` datetime(6) DEFAULT NULL,
+                          `id` bigint NOT NULL AUTO_INCREMENT,
+                          `updated_at` datetime(6) DEFAULT NULL,
+                          `content` text,
+                          `name` varchar(255) NOT NULL,
+                          `thumbnail_url` varchar(255) DEFAULT NULL,
+                          `status` enum('DRAFT','UPCOMING','COMPLETED','ONGOING') DEFAULT NULL,
+                          `slug` varchar(255) NOT NULL,
+                          `short_description` varchar(255) DEFAULT NULL,
+                          `category_id` int DEFAULT NULL,
+                          PRIMARY KEY (`id`),
+                          UNIQUE KEY `uk_events_slug` (`slug`),
+                          CONSTRAINT `fk_event_category` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- donation.system_configs definition
+
+CREATE TABLE `system_configs` (
+                                  `id` bigint NOT NULL AUTO_INCREMENT,
+                                  `config_key` varchar(255) DEFAULT NULL,
+                                  `config_value` text,
+                                  `description` varchar(255) DEFAULT NULL,
+                                  PRIMARY KEY (`id`),
+                                  UNIQUE KEY `uk_system_configs_key` (`config_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- donation.users definition
+
+CREATE TABLE `users` (
+                         `created_at` datetime(6) DEFAULT NULL,
+                         `id` bigint NOT NULL AUTO_INCREMENT,
+                         `updated_at` datetime(6) DEFAULT NULL,
+                         `email` varchar(255) DEFAULT NULL,
+                         `full_name` varchar(255) DEFAULT NULL,
+                         `password` varchar(255) DEFAULT NULL,
+                         `phone` varchar(255) DEFAULT NULL,
+                         `role` enum('ADMIN','STAFF','ACCOUNTING','DONOR') DEFAULT NULL,
+                         `status` enum('ACTIVE','INACTIVE') DEFAULT 'ACTIVE',
+                         `username` varchar(255) DEFAULT NULL,
+                         PRIMARY KEY (`id`),
+                         UNIQUE KEY `uk_users_email` (`email`),
+                         UNIQUE KEY `uk_users_phone` (`phone`),
+                         UNIQUE KEY `uk_users_username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- donation.activities definition
+
+CREATE TABLE `activities` (
+                              `id` bigint NOT NULL AUTO_INCREMENT,
+                              `completed_at` datetime(6) DEFAULT NULL,
+                              `content` text,
+                              `created_at` datetime(6) DEFAULT NULL,
+                              `current_amount` decimal(38,2) DEFAULT NULL,
+                              `end_date` date DEFAULT NULL,
+                              `name` varchar(255) DEFAULT NULL,
+                              `slug` varchar(255) DEFAULT NULL,
+                              `start_date` date DEFAULT NULL,
+                              `status` enum('DRAFT','UPCOMING','COMPLETED','ONGOING') DEFAULT NULL,
+                              `target_amount` decimal(38,2) DEFAULT NULL,
+                              `thumbnail_url` varchar(255) DEFAULT NULL,
+                              `updated_at` datetime(6) DEFAULT NULL,
+                              `event_id` bigint DEFAULT NULL,
+                              `short_description` varchar(255) DEFAULT NULL,
+                              PRIMARY KEY (`id`),
+                              UNIQUE KEY `uk_activities_slug` (`slug`),
+                              CONSTRAINT `fk_activity_event` FOREIGN KEY (`event_id`) REFERENCES `events` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- donation.donors definition
+
+CREATE TABLE `donors` (
+                          `created_at` datetime(6) DEFAULT NULL,
+                          `created_by_user_id` bigint DEFAULT NULL,
+                          `id` bigint NOT NULL AUTO_INCREMENT,
+                          `updated_at` datetime(6) DEFAULT NULL,
+                          `note` text,
+                          `email` varchar(255) NOT NULL,
+                          `full_name` varchar(255) NOT NULL,
+                          `phone` varchar(255) NOT NULL,
+                          `referral_source` varchar(255) DEFAULT NULL,
+                          `type` enum('INDIVIDUAL','ORGANIZATION') NOT NULL,
+                          `display_name` varchar(255) DEFAULT NULL,
+                          PRIMARY KEY (`id`),
+                          UNIQUE KEY `uk_donors_email` (`email`),
+                          UNIQUE KEY `uk_donors_phone` (`phone`),
+                          CONSTRAINT `fk_donor_created_by` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- donation.organizations definition
+
+CREATE TABLE `organizations` (
+                                 `id` bigint NOT NULL,
+                                 `billing_address` text,
+                                 `name` varchar(255) DEFAULT NULL,
+                                 `representative` varchar(255) DEFAULT NULL,
+                                 `tax_code` varchar(255) DEFAULT NULL,
+                                 PRIMARY KEY (`id`),
+                                 UNIQUE KEY `uk_organization_tax_code` (`tax_code`),
+                                 CONSTRAINT `fk_organization_donor` FOREIGN KEY (`id`) REFERENCES `donors` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- donation.donations definition
+
+CREATE TABLE donations (
+                           id bigint NOT NULL AUTO_INCREMENT,
+                           amount decimal(38,2) NOT NULL,
+                           confirmed_at datetime(6) DEFAULT NULL,
+                           created_at datetime(6) DEFAULT NULL,
+                           donated_at datetime(6) DEFAULT NULL,
+                           donation_via enum('STAFF','WEB') DEFAULT NULL,
+                           memo_code varchar(255) DEFAULT NULL,
+                           message text,
+                           need_receipt bit(1) DEFAULT NULL,
+                           order_code bigint DEFAULT NULL,
+                           payment_method enum('BANK_TRANSFER_OFFLINE','BANK_TRANSFER_ONLINE','CASH') DEFAULT NULL,
+                           receipt_email varchar(255) DEFAULT NULL,
+                           receipt_name varchar(255) DEFAULT NULL,
+                           rejection_reason text,
+                           status enum('CANCELLED','CONFIRMED','FAILED','PENDING_APPROVED','PENDING_PAYMENT','REJECTED') DEFAULT NULL,
+                           target enum('ACTIVITY','EVENT','NONE') DEFAULT NULL,
+                           type enum('MONEY','ITEM') DEFAULT NULL,
+                           updated_at datetime(6) DEFAULT NULL,
+                           activity_id bigint DEFAULT NULL,
+                           confirmed_by_user_id bigint DEFAULT NULL,
+                           created_by_user_id bigint DEFAULT NULL,
+                           donor_id bigint DEFAULT NULL,
+                           event_id bigint DEFAULT NULL,
+                           PRIMARY KEY (id),
+                           CONSTRAINT fk_donation_donor FOREIGN KEY (donor_id) REFERENCES donors (id),
+                           CONSTRAINT fk_donation_event FOREIGN KEY (event_id) REFERENCES events (id),
+                           CONSTRAINT fk_donation_activity FOREIGN KEY (activity_id) REFERENCES activities (id),
+                           CONSTRAINT fk_donation_created_by FOREIGN KEY (created_by_user_id) REFERENCES users (id),
+                           CONSTRAINT fk_donation_confirmed_by FOREIGN KEY (confirmed_by_user_id) REFERENCES users (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- donation.donation_transactions definition
+
+CREATE TABLE `donation_transactions` (
+                                         `amount` decimal(38,2) DEFAULT NULL,
+                                         `payment_method` enum('BANK_TRANSFER_OFFLINE','BANK_TRANSFER_ONLINE','CASH') DEFAULT NULL,
+                                         `created_at` datetime(6) DEFAULT NULL,
+                                         `donation_id` bigint DEFAULT NULL,
+                                         `id` bigint NOT NULL AUTO_INCREMENT,
+                                         `updated_at` datetime(6) DEFAULT NULL,
+                                         `account_bank_id` varchar(255) DEFAULT NULL,
+                                         `counter_account_name` varchar(255) DEFAULT NULL,
+                                         `counter_account_number` varchar(255) DEFAULT NULL,
+                                         `description` varchar(255) DEFAULT NULL,
+                                         `raw_api_data` text,
+                                         `transaction_code` varchar(255) DEFAULT NULL,
+                                         `transaction_date_time` varchar(255) DEFAULT NULL,
+                                         PRIMARY KEY (`id`),
+                                         UNIQUE KEY `uk_donation_transactions_donation` (`donation_id`),
+                                         CONSTRAINT `fk_donation_transactions_donations` FOREIGN KEY (`donation_id`) REFERENCES `donations` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- donation.audit_logs definition
+CREATE TABLE `audit_logs` (
+                              `id` bigint NOT NULL AUTO_INCREMENT,
+                              `action` enum('CREATE','UPDATE','DELETE','STATUS_CHANGE') NOT NULL,
+                              `entity_type` enum('DONATION','EVENT','ACTIVITY') NOT NULL,
+                              `entity_id` bigint NOT NULL,
+                              `actor_username` varchar(255) DEFAULT NULL,
+                              `actor_role` varchar(100) DEFAULT NULL,
+                              `summary` varchar(500) DEFAULT NULL,
+                              `changes_json` text,
+                              `ip_address` varchar(100) DEFAULT NULL,
+                              `user_agent` varchar(500) DEFAULT NULL,
+                              `created_at` datetime(6) DEFAULT NULL,
+                              PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 1) users (6 dòng)
+INSERT INTO users (id, created_at, updated_at, email, full_name, password, phone, role, status, username) VALUES
+                                                                                                       (1, '2026-02-01 08:10:00.000000', '2026-02-20 10:00:00.000000', 'admin@gms.local',    'Quản trị hệ thống', '$2a$10$s3go5e.GYivSMmrJXG6jceddjfSAbg6O832Sip8XIVNRRLIjXNP6G', '0905000001', 'ADMIN',      'ACTIVE',   'admin'),
+                                                                                                       (2, '2026-02-02 09:00:00.000000', '2026-02-21 09:10:00.000000', 'staff@gms.local',    'Nhân viên tiếp nhận', '$2a$10$EeSehs49igNMz6Vuk69cDuaAGHFrWSjeOvMmNkaAr6ZwyZtltKStS', '0905000002', 'STAFF',      'ACTIVE',   'staff'),
+                                                                                                       (3, '2026-02-02 09:05:00.000000', '2026-02-21 09:15:00.000000', 'accounting@gms.local','Kế toán từ thiện',   '$2a$10$llGgE5VlZzM0.pCzbOLGWev.cqdovrjSsq0lGM87wo0FVgATXsh12', '0905000003', 'ACCOUNTING', 'ACTIVE',   'accounting'),
+                                                                                                       (7, '2026-03-21 18:00:00.000000', '2026-03-21 18:00:00.000000', 'thuylinh@gms.local',  'Nguyen Thuy Linh',   '$2y$10$tXhj/qUr.E9dlxuDE6yQ4ejRBDLz9gM0QvfXAvttvguP3melfqbzO', '0905000007', 'STAFF',      'ACTIVE',   'thuylinh'),
+                                                                                                       (8, '2026-03-21 18:00:00.000000', '2026-03-21 18:00:00.000000', 'camtu@gms.local',     'Tran Cam Tu',        '$2y$10$tXhj/qUr.E9dlxuDE6yQ4ejRBDLz9gM0QvfXAvttvguP3melfqbzO', '0905000008', 'ACCOUNTING', 'ACTIVE',   'camtu'),
+                                                                                                       (9, '2026-03-21 18:00:00.000000', '2026-03-21 18:00:00.000000', 'ngothinh@gms.local',  'Ngo Thinh',          '$2y$10$tXhj/qUr.E9dlxuDE6yQ4ejRBDLz9gM0QvfXAvttvguP3melfqbzO', '0905000009', 'DONOR',      'INACTIVE', 'ngothinh');
+
+-- 2) system_configs (25 dòng)
+INSERT INTO system_configs (id, config_key, config_value, description) VALUES
+                                                                           (1, 'club_name', 'CLB Chia sẻ Yêu Thương', 'Tên hiển thị của câu lạc bộ'),
+                                                                           (2, 'default_currency', 'VND', 'Đơn vị tiền tệ mặc định'),
+                                                                           (3, 'receipt_sender_email', 'receipt@gms.local', 'Email gửi biên nhận'),
+                                                                           (4, 'bank_account_display', 'Ngân hàng Agribank - 2000206383413 - CLB Chia sẻ Yêu Thương', 'Thông tin tài khoản nhận chuyển khoản'),
+                                                                           (5, 'approval_threshold_vnd', '10000000', 'Ngưỡng cần duyệt (VND)'),
+                                                                           (6, 'ORG_NAME', 'Chia Sẻ Yêu Thương', 'Tên tổ chức hiển thị'),
+                                                                           (7, 'ORG_LOGO_URL', '/images/logo.jpg', 'Đường dẫn logo tổ chức'),
+                                                                           (8, 'ORG_ADDRESS', '25 An Nhơn 2, An Hải, Thành Phố Đà Nẵng', 'Địa chỉ văn phòng'),
+                                                                           (9, 'ORG_PHONE', '+84 982 746 462', 'Số điện thoại liên hệ'),
+                                                                           (10, 'ORG_EMAIL', 'contact@chiaseyeuthuong.vn', 'Email liên hệ'),
+                                                                           (11, 'ORG_FACEBOOK_URL', 'https://facebook.com/chiaseyeuthuong', 'Link fanpage Facebook'),
+                                                                           (12, 'HOME_BANNER_URL', '/images/default-event.png', 'Ảnh banner hero trang chủ'),
+                                                                           (13, 'HOME_HERO_BADGE', 'Tổ chức phi lợi nhuận', 'Nhãn hero trang chủ'),
+                                                                           (14, 'HOME_HERO_TITLE', 'Cùng nhau, chúng ta', 'Dòng tiêu đề chính trang chủ'),
+                                                                           (15, 'HOME_HERO_TITLE_HIGHLIGHT', 'tạo nên hy vọng', 'Dòng tiêu đề nhấn mạnh trang chủ'),
+                                                                           (16, 'HOME_HERO_DESCRIPTION', 'Hãy tham gia cộng đồng những người mong muốn tạo ra sự thay đổi, cùng chung tay cải thiện cuộc sống trên khắp thế giới thông qua giáo dục, chăm sóc sức khỏe và phát triển bền vững.', 'Mô tả hero trang chủ'),
+                                                                           (17, 'ABOUT_BANNER_URL', 'https://scontent.fdad2-1.fna.fbcdn.net/v/t39.30808-6/531543710_3117474291746787_5442302395585835797_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=7b2446&_nc_ohc=5a4EB3FI_WYQ7kNvwE9VVPc&_nc_oc=Adm9P5PNzq0NHulFyja6XkvXt_xsM5TMEcjeKUzWFIwVt7HcL4oSO6k1R9r0LgaUN1A&_nc_zt=23&_nc_ht=scontent.fdad2-1.fna&_nc_gid=60O8h7AxqKA_jsJk8k14kA&_nc_ss=8&oh=00_AfylfcMyD_I_adEEq9TFP8B-QZwjQ_XmhZjklsZZjA59Cw&oe=69B1C30D', 'Ảnh banner trang giới thiệu'),
+                                                                           (18, 'ABOUT_HERO_TITLE', 'Lan Tỏa Yêu Thương, Kết Nối Những Tấm Lòng', 'Tiêu đề hero trang giới thiệu'),
+                                                                           (19, 'ABOUT_HERO_SUBTITLE', 'Hành trình từ Tâm Hạnh Nguyện đến sứ mệnh phụng sự cộng đồng bền vững.', 'Mô tả hero trang giới thiệu'),
+                                                                           (20, 'ABOUT_STORY', 'Chia Sẻ Yêu Thương (tiền thân là Tâm Hạnh Nguyện) là tổ chức thiện nguyện không ngừng nỗ lực vì cộng đồng từ năm 2016. Khởi đầu từ những hành động nhỏ bé của một nhóm bạn thân và gia đình, chúng tôi đã lớn mạnh thành một cộng đồng gắn kết để hỗ trợ những mảnh đời khó khăn trên khắp đất nước.', 'Câu chuyện của tổ chức'),
+                                                                           (21, 'ABOUT_VISION', 'Trở thành cầu nối tin cậy và bền vững nhất cho mọi hoạt động thiện nguyện tại Việt Nam.', 'Nội dung tầm nhìn'),
+                                                                           (22, 'ABOUT_MISSION', 'Mang lại niềm hy vọng và cải thiện chất lượng cuộc sống cho những hoàn cảnh kém may mắn thông qua sự sẻ chia chân thành.', 'Nội dung sứ mệnh'),
+                                                                           (23, 'ABOUT_MISSION_VISION', 'Tầm nhìn: Trở thành cầu nối tin cậy và bền vững nhất cho mọi hoạt động thiện nguyện tại Việt Nam. Sứ mệnh: Mang lại niềm hy vọng và cải thiện chất lượng cuộc sống cho những hoàn cảnh kém may mắn thông qua sự sẻ chia chân thành.', 'Nội dung tầm nhìn và sứ mệnh tổng hợp'),
+                                                                           (24, 'ABOUT_OLD_LOGO_URL', '/images/logo.jpg', 'Logo cũ giới thiệu'),
+                                                                           (25, 'ABOUT_NEW_LOGO_URL', '/images/logo.jpg', 'Logo mới giới thiệu'),
+                                                                           (26, 'HOME_HERO_PRIMARY_CTA', 'Quyên góp', 'Nút CTA chính trang chủ'),
+                                                                           (27, 'HOME_HERO_SECONDARY_CTA', 'Tổng hợp các sự kiện', 'Nút CTA phụ trang chủ'),
+                                                                           (28, 'ABOUT_FOUNDER_NAME', 'Bà Trần Thị Mỹ Hạnh', 'Tên người sáng lập');
+
+-- 5) categories (4 dòng)
+INSERT INTO categories (id, name, slug) VALUES
+                                            (1, 'Y tế', 'y-te'),
+                                            (2, 'Giáo dục', 'giao-duc'),
+                                            (3, 'Cứu trợ thiên tai', 'cuu-tro-thien-tai'),
+                                            (4, 'Học bổng', 'hoc-bong');
+
+-- 6) events (14 dòng, gồm cả DRAFT/UPCOMING/ONGOING/COMPLETED)
+INSERT INTO events (
+    id, name, slug, status, short_description, content, thumbnail_url,
+    target_amount, current_amount, number_of_activities,
+    start_date, end_date, completed_at, created_at, updated_at, category_id
+) VALUES
+      (1, 'Gây quỹ mổ tim cho bé An', 'gay-quy-mo-tim-be-an', 'ONGOING',
+       'Hỗ trợ chi phí phẫu thuật tim bẩm sinh cho bé An.',
+       'Nội dung chi tiết: công khai tiến độ, chứng từ và cập nhật sức khỏe định kỳ.',
+       'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+       200000000.00, 125500000.00, 2,
+       '2026-01-15', '2026-03-31', NULL,
+       '2026-01-10 09:00:00.000000', '2026-02-22 09:00:00.000000', 1),
+
+      (2, 'Tết Ấm Miền Trung 2026', 'tet-am-mien-trung-2026', 'COMPLETED',
+       'Trao quà Tết cho các hộ khó khăn tại miền Trung.',
+       'Nội dung chi tiết: báo cáo chi, hình ảnh trao quà, danh sách điểm phát.',
+       'https://images.unsplash.com/photo-1599059813005-11265ba4b4ce?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+       150000000.00, 158200000.00, 2,
+       '2025-12-15', '2026-01-31', '2026-02-02 18:00:00.000000',
+       '2025-12-10 08:30:00.000000', '2026-02-03 10:00:00.000000', 3),
+
+      (3, 'Học bổng Tiếp Bước 2026', 'hoc-bong-tiep-buoc-2026', 'UPCOMING',
+       'Học bổng cho học sinh có hoàn cảnh khó khăn.',
+       'Nội dung chi tiết: tiêu chí, quy trình xét duyệt, lịch trao học bổng.',
+       'https://images.unsplash.com/photo-1608686207856-001b95cf60ca?q=80&w=927&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+       300000000.00, 0.00, 1,
+       '2026-03-01', '2026-06-30', NULL,
+       '2026-02-15 09:00:00.000000', '2026-02-22 09:10:00.000000', 4),
+
+      (4, 'Sách cho em vùng cao', 'sach-cho-em-vung-cao', 'ONGOING',
+       'Gây quỹ mua sách và dụng cụ học tập cho học sinh vùng cao.',
+       'Nội dung chi tiết: danh mục sách, biên nhận mua hàng, lịch trao tặng.',
+       'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+       80000000.00, 24300000.00, 1,
+       '2026-02-01', '2026-04-30', NULL,
+       '2026-01-25 10:00:00.000000', '2026-02-22 09:20:00.000000', 2),
+
+      (5, 'Bữa cơm 0 đồng cho bệnh nhi', 'bua-com-0-dong-cho-benh-nhi', 'DRAFT',
+       'Chuẩn bị kế hoạch phát suất ăn miễn phí cho gia đình bệnh nhi khó khăn.',
+       'Bản nháp nội dung chi tiết cho chương trình bữa cơm 0 đồng.',
+       'https://images.unsplash.com/photo-1638526970908-b18e32b0bc42?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+       120000000.00, 0.00, 0,
+       CURDATE() + INTERVAL 12 DAY, CURDATE() + INTERVAL 52 DAY, NULL,
+       NOW() - INTERVAL 9 DAY, NOW() - INTERVAL 2 DAY, 1),
+
+      (6, 'Tiếp sức mùa thi miền núi', 'tiep-suc-mua-thi-mien-nui', 'DRAFT',
+       'Lên kế hoạch hỗ trợ chỗ ở và suất ăn cho học sinh vùng xa tham gia kỳ thi.',
+       'Bản nháp nội dung chi tiết cho chương trình tiếp sức mùa thi miền núi.',
+       'https://images.unsplash.com/photo-1710093072218-0024b8391475?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+       90000000.00, 0.00, 0,
+       CURDATE() + INTERVAL 18 DAY, CURDATE() + INTERVAL 65 DAY, NULL,
+       NOW() - INTERVAL 7 DAY, NOW() - INTERVAL 1 DAY, 2),
+
+      (7, 'Áo ấm biên cương 2026', 'ao-am-bien-cuong-2026', 'DRAFT',
+       'Hoàn thiện danh sách điểm trường và nhu cầu áo ấm cho trẻ em vùng biên.',
+       'Bản nháp nội dung chi tiết cho chương trình áo ấm biên cương.',
+       'https://plus.unsplash.com/premium_photo-1683121341746-defea7bfc148?q=80&w=3132&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+       150000000.00, 0.00, 0,
+       CURDATE() + INTERVAL 25 DAY, CURDATE() + INTERVAL 90 DAY, NULL,
+       NOW() - INTERVAL 6 DAY, NOW() - INTERVAL 1 DAY, 3),
+
+      (8, 'Nâng bước em đến trường', 'nang-buoc-em-den-truong', 'ONGOING',
+       'Hỗ trợ học phí và dụng cụ học tập cho học sinh khó khăn đầu năm học.',
+       'Nội dung chi tiết: tiêu chí hỗ trợ, danh sách điểm trường, tiến độ trao quà.',
+       'https://images.unsplash.com/photo-1609139027234-57570f43f692?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+       180000000.00, 68500000.00, 0,
+       CURDATE() - INTERVAL 8 DAY, CURDATE() + INTERVAL 28 DAY, NULL,
+       NOW() - INTERVAL 20 DAY, NOW() - INTERVAL 1 DAY, 4),
+
+      (9, 'Chung tay sửa lớp học cũ', 'chung-tay-sua-lop-hoc-cu', 'ONGOING',
+       'Kêu gọi sửa chữa phòng học xuống cấp trước mùa mưa.',
+       'Nội dung chi tiết: hiện trạng lớp học, khối lượng sửa chữa, tiến độ thực hiện.',
+       'https://images.unsplash.com/photo-1758346974564-07a164871e7d?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+       260000000.00, 141000000.00, 0,
+       CURDATE() - INTERVAL 14 DAY, CURDATE() + INTERVAL 40 DAY, NULL,
+       NOW() - INTERVAL 25 DAY, NOW() - INTERVAL 2 DAY, 2),
+
+      (10, 'Nước sạch cho bản nhỏ', 'nuoc-sach-cho-ban-nho', 'ONGOING',
+       'Xây bồn chứa và hệ thống lọc nước cho khu dân cư vùng cao.',
+       'Nội dung chi tiết: phương án thi công, chi phí vật tư, tiến độ lắp đặt.',
+       'https://plus.unsplash.com/premium_photo-1681830431271-d740702ec63f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+       300000000.00, 99000000.00, 0,
+       CURDATE() - INTERVAL 5 DAY, CURDATE() + INTERVAL 55 DAY, NULL,
+       NOW() - INTERVAL 16 DAY, NOW() - INTERVAL 1 DAY, 3),
+
+      (11, 'Thắp sáng điểm trường xa', 'thap-sang-diem-truong-xa', 'UPCOMING',
+       'Lắp đặt hệ thống điện năng lượng mặt trời cho điểm trường chưa có điện ổn định.',
+       'Nội dung chi tiết: khảo sát địa điểm, chi phí thiết bị, lịch lắp đặt.',
+       'https://images.unsplash.com/photo-1579208570378-8c970854bc23?q=80&w=2422&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+       220000000.00, 0.00, 0,
+       CURDATE() + INTERVAL 7 DAY, CURDATE() + INTERVAL 45 DAY, NULL,
+       NOW() - INTERVAL 10 DAY, NOW() - INTERVAL 1 DAY, 1),
+
+      (12, 'Nhịp cầu yêu thương', 'nhip-cau-yeu-thuong', 'UPCOMING',
+       'Gây quỹ xây cầu dân sinh cho khu vực thường bị chia cắt vào mùa mưa.',
+       'Nội dung chi tiết: bản vẽ sơ bộ, chi phí dự kiến, mốc triển khai từng giai đoạn.',
+       'https://images.unsplash.com/photo-1652858672796-960164bd632b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+       500000000.00, 0.00, 0,
+       CURDATE() + INTERVAL 16 DAY, CURDATE() + INTERVAL 95 DAY, NULL,
+       NOW() - INTERVAL 8 DAY, NOW() - INTERVAL 1 DAY, 3),
+
+      (13, 'Tủ thuốc học đường', 'tu-thuoc-hoc-duong', 'UPCOMING',
+       'Chuẩn bị trang bị tủ thuốc và vật tư y tế cơ bản cho các điểm trường khó khăn.',
+       'Nội dung chi tiết: danh mục vật tư, đối tượng thụ hưởng, kế hoạch bàn giao.',
+       'https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+       110000000.00, 0.00, 0,
+       CURDATE() + INTERVAL 24 DAY, CURDATE() + INTERVAL 70 DAY, NULL,
+       NOW() - INTERVAL 5 DAY, NOW() - INTERVAL 1 DAY, 1),
+
+      (14, 'Xuân san sẻ vùng cao', 'xuan-san-se-vung-cao', 'COMPLETED',
+       'Hoàn tất chương trình trao nhu yếu phẩm và học bổng đầu xuân cho học sinh vùng cao.',
+       'Nội dung chi tiết: báo cáo tổng kết, hình ảnh trao quà, danh sách thụ hưởng.',
+       'https://images.unsplash.com/photo-1497375638960-ca368c7231e4?q=80&w=2040&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+       175000000.00, 182400000.00, 0,
+       CURDATE() - INTERVAL 55 DAY, CURDATE() - INTERVAL 7 DAY, NOW() - INTERVAL 6 DAY,
+       NOW() - INTERVAL 70 DAY, NOW() - INTERVAL 5 DAY, 4);
+
+-- 7) activities (5 dòng)
+INSERT INTO activities (
+    id, event_id, name, slug, status, short_description, content, thumbnail_url,
+    target_amount, current_amount, start_date, end_date, completed_at, created_at, updated_at
+) VALUES
+      (1, 1, 'Đợt 1 - Chi phí phẫu thuật', 'dot-1-chi-phi-phau-thuat', 'ONGOING',
+       'Gom đủ chi phí phẫu thuật theo dự toán bệnh viện.',
+       'Cập nhật: dự toán, biên lai, tiến độ đóng góp.',
+       'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+       140000000.00, 98500000.00, '2026-01-15', '2026-02-27', NULL,
+       '2026-01-10 10:00:00.000000', '2026-02-22 09:30:00.000000'),
+
+      (2, 1, 'Đợt 2 - Hậu phẫu & phục hồi', 'dot-2-hau-phau-phuc-hoi', 'UPCOMING',
+       'Hỗ trợ chi phí thuốc và tái khám sau mổ.',
+       'Cập nhật: kế hoạch chi phí, lịch tái khám.',
+       'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+       60000000.00, 0.00, '2026-03-01', '2026-03-31', NULL,
+       '2026-02-10 09:00:00.000000', '2026-02-22 09:31:00.000000'),
+
+      (3, 2, 'Trao quà Quảng Nam', 'trao-qua-quang-nam', 'COMPLETED',
+       'Trao quà Tết tại 2 xã thuộc Quảng Nam.',
+       'Cập nhật: hình ảnh trao quà, danh sách nhận quà.',
+       'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+       70000000.00, 72000000.00, '2026-01-10', '2026-01-20', '2026-01-20 17:30:00.000000',
+       '2026-01-05 09:00:00.000000', '2026-01-22 10:00:00.000000'),
+
+      (4, 2, 'Sửa nhà sau bão', 'sua-nha-sau-bao', 'COMPLETED',
+       'Hỗ trợ sửa chữa nhà ở bị hư hại.',
+       'Cập nhật: biên nhận vật tư, hình ảnh trước/sau.',
+       'https://plus.unsplash.com/premium_photo-1663040178972-ee1d45d33899?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+       80000000.00, 86200000.00, '2025-12-20', '2026-01-31', '2026-02-01 12:00:00.000000',
+       '2025-12-18 08:00:00.000000', '2026-02-02 09:00:00.000000'),
+
+      (5, 4, 'Mua sách đợt 1', 'mua-sach-dot-1', 'ONGOING',
+       'Mua sách theo danh mục nhà trường đề xuất.',
+       'Cập nhật: danh mục sách, hóa đơn, tiến độ đóng góp.',
+       'https://images.unsplash.com/photo-1593113616828-6f22bca04804?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+       50000000.00, 24300000.00, '2026-02-05', '2026-03-10', NULL,
+       '2026-02-01 09:00:00.000000', '2026-02-22 09:40:00.000000');
+
+-- 8) donors (5 dòng)
+INSERT INTO donors (
+    id, created_at, updated_at, created_by_user_id,
+    email, full_name, phone, referral_source, type, display_name, note
+) VALUES
+      (1, '2026-02-05 10:00:00.000000', '2026-02-22 09:00:00.000000', 2,
+       'lan.pham@example.com', 'Phạm Thị Lan', '0907000001', 'Facebook', 'INDIVIDUAL', 'Chị Lan', 'Ủng hộ định kỳ hằng tháng.'),
+
+      (2, '2026-02-06 11:20:00.000000', '2026-02-22 09:05:00.000000', 2,
+       'minh.nguyen@example.com', 'Nguyễn Văn Minh', '0907000002', 'Bạn bè giới thiệu', 'INDIVIDUAL', 'Anh Minh', 'Ưu tiên các chiến dịch giáo dục.'),
+
+      (3, '2026-02-07 08:45:00.000000', '2026-02-22 09:10:00.000000', 2,
+       'huong.tran@example.com', 'Trần Ngọc Hương', '0907000003', 'Sự kiện offline', 'INDIVIDUAL', 'Cô Hương', 'Thường xin biên nhận.'),
+
+      (4, '2026-02-08 14:10:00.000000', '2026-02-22 09:15:00.000000', 2,
+       'contact@anphat-co.local', 'Công ty TNHH An Phát', '0907000004', 'Đối tác', 'ORGANIZATION', 'An Phát Co.', 'Tài trợ theo chương trình cộng đồng.'),
+
+      (5, '2026-02-09 09:30:00.000000', '2026-02-22 09:18:00.000000', 2,
+       'csr@thientam-group.local', 'Thiện Tâm Group', '0907000005', 'Email', 'ORGANIZATION', 'Thiện Tâm Group', 'Quan tâm cứu trợ và y tế.');
+
+-- 9) organizations (2 dòng)
+INSERT INTO organizations (id, billing_address, name, representative, tax_code) VALUES
+                                                                                              (4, '12 Đường Số 3, Quận Hải Châu, Đà Nẵng', 'Công ty TNHH An Phát', 'Nguyễn Hoài Nam', '0402123456'),
+                                                                                              (5, '88 Nguyễn Văn Linh, Quận Thanh Khê, Đà Nẵng', 'Thiện Tâm Group', 'Trần Thị Mai', '0402987654');
+
+-- 10) donations
+INSERT INTO donations (
+    id, amount, confirmed_at, created_at, donated_at,
+    donation_via, memo_code, message, need_receipt, order_code, payment_method,
+    receipt_email, receipt_name, status, target, type, updated_at,
+    activity_id, confirmed_by_user_id, created_by_user_id, donor_id, event_id
+) VALUES
+      (1,  500000.00, '2025-12-28 10:30:00.000000', '2025-12-28 10:05:00.000000', '2025-12-28 10:05:00.000000',
+       'WEB', 'GMS-20251228-0001', 'Ủng hộ cho chương trình cuối năm.', 1, 202512280001, 'BANK_TRANSFER_ONLINE',
+       'lan.pham@example.com', 'Phạm Thị Lan', 'CONFIRMED', 'EVENT', 'MONEY', '2025-12-28 10:30:00.000000',
+       NULL, 3, NULL, 1, 2),
+
+      (2, 2000000.00, '2026-01-03 09:25:00.000000', '2026-01-03 09:10:00.000000', '2026-01-03 09:10:00.000000',
+       'WEB', 'GMS-20260103-0002', 'Góp một phần nhỏ cho chương trình.', 0, 202601030002, 'BANK_TRANSFER_OFFLINE',
+       NULL, NULL, 'CONFIRMED', 'EVENT', 'MONEY', '2026-01-03 09:25:00.000000',
+       NULL, 3, NULL, 2, 4),
+
+      (3, 30000000.00, '2026-01-08 14:45:00.000000', '2026-01-08 14:20:00.000000', '2026-01-08 14:20:00.000000',
+       'STAFF', 'GMS-20260108-0003', 'Tài trợ theo chương trình cộng đồng.', 1, 202601080003, 'BANK_TRANSFER_OFFLINE',
+       'contact@anphat-co.local', 'Công ty TNHH An Phát', 'CONFIRMED', 'EVENT', 'MONEY', '2026-01-08 14:45:00.000000',
+       NULL, 3, 2, 4, 2),
+
+      (4, 1500000.00, '2026-01-12 08:55:00.000000', '2026-01-12 08:40:00.000000', '2026-01-12 08:40:00.000000',
+       'WEB', 'GMS-20260112-0004', 'Ủng hộ mua sách cho các em.', 0, 202601120004, 'BANK_TRANSFER_ONLINE',
+       NULL, NULL, 'CONFIRMED', 'EVENT', 'MONEY', '2026-01-12 08:55:00.000000',
+       NULL, 3, NULL, 3, 4),
+
+      (5, 800000.00, '2026-01-16 11:10:00.000000', '2026-01-16 11:00:00.000000', '2026-01-16 11:00:00.000000',
+       'WEB', 'GMS-20260116-0005', 'Chúc chương trình thành công.', 0, 202601160005, 'BANK_TRANSFER_ONLINE',
+       NULL, NULL, 'CONFIRMED', 'EVENT', 'MONEY', '2026-01-16 11:10:00.000000',
+       NULL, 3, NULL, 1, 1),
+
+      (6, 1200000.00, '2026-01-21 16:55:00.000000', '2026-01-21 16:40:00.000000', '2026-01-21 16:40:00.000000',
+       'WEB', 'GMS-20260121-0006', 'Mong chương trình triển khai suôn sẻ.', 0, 202601210006, 'BANK_TRANSFER_OFFLINE',
+       NULL, NULL, 'CONFIRMED', 'EVENT', 'MONEY', '2026-01-21 16:55:00.000000',
+       NULL, 3, NULL, 2, 1),
+
+      (7, 1000000.00, '2026-01-26 10:15:00.000000', '2026-01-26 09:50:00.000000', '2026-01-26 09:50:00.000000',
+       'STAFF', 'GMS-20260126-0007', 'Đóng góp tại buổi gây quỹ offline.', 1, 202601260007, 'CASH',
+       'minh.nguyen@example.com', 'Nguyễn Văn Minh', 'CONFIRMED', 'EVENT', 'MONEY', '2026-01-26 10:15:00.000000',
+       NULL, 3, 2, 2, 4),
+
+      (8, 5000000.00, '2026-02-01 15:30:00.000000', '2026-02-01 15:00:00.000000', '2026-02-01 15:00:00.000000',
+       'STAFF', 'GMS-20260201-0008', 'Hiện vật quy đổi theo giá trị hóa đơn.', 1, 202602010008, 'CASH',
+       'huong.tran@example.com', 'Trần Ngọc Hương', 'CONFIRMED', 'ACTIVITY', 'ITEM', '2026-02-01 15:30:00.000000',
+       3, 3, 2, 3, NULL),
+
+      (9, 250000.00, '2026-02-05 09:20:00.000000', '2026-02-05 09:10:00.000000', '2026-02-05 09:10:00.000000',
+       'WEB', 'GMS-20260205-0009', 'Ủng hộ chung cho hoạt động của CLB.', 0, 202602050009, 'BANK_TRANSFER_ONLINE',
+       NULL, NULL, 'CONFIRMED', 'NONE', 'MONEY', '2026-02-05 09:20:00.000000',
+       NULL, 3, NULL, 1, NULL),
+
+      (10, 3500000.00, '2026-02-09 13:45:00.000000', '2026-02-09 13:30:00.000000', '2026-02-09 13:30:00.000000',
+       'WEB', 'GMS-20260209-0010', 'Ủng hộ cho chi phí phẫu thuật.', 1, 202602090010, 'BANK_TRANSFER_OFFLINE',
+       'csr@thientam-group.local', 'Thiện Tâm Group', 'CONFIRMED', 'ACTIVITY', 'MONEY', '2026-02-09 13:45:00.000000',
+       1, 3, NULL, 5, NULL),
+
+      (11, 2200000.00, '2026-02-14 10:10:00.000000', '2026-02-14 09:40:00.000000', '2026-02-14 09:40:00.000000',
+       'WEB', 'GMS-20260214-0011', 'Ủng hộ đợt 1 cho bé An.', 0, 202602140011, 'BANK_TRANSFER_ONLINE',
+       NULL, NULL, 'CONFIRMED', 'EVENT', 'MONEY', '2026-02-14 10:10:00.000000',
+       NULL, 3, NULL, 2, 1),
+
+      (12, 4700000.00, '2026-02-20 11:25:00.000000', '2026-02-20 11:05:00.000000', '2026-02-20 11:05:00.000000',
+       'STAFF', 'GMS-20260220-0012', 'Ủng hộ tại bàn tiếp nhận trực tiếp.', 1, 202602200012, 'CASH',
+       'lan.pham@example.com', 'Phạm Thị Lan', 'CONFIRMED', 'EVENT', 'MONEY', '2026-02-20 11:25:00.000000',
+       NULL, 3, 2, 1, 4),
+
+      (13, 1250000.00, '2026-02-25 17:05:00.000000', '2026-02-25 16:50:00.000000', '2026-02-25 16:50:00.000000',
+       'WEB', 'GMS-20260225-0013', 'Ủng hộ hoạt động mua sách.', 0, 202602250013, 'BANK_TRANSFER_ONLINE',
+       NULL, NULL, 'CONFIRMED', 'ACTIVITY', 'MONEY', '2026-02-25 17:05:00.000000',
+       5, 3, NULL, 3, NULL),
+
+      (14, 9000000.00, '2026-03-02 09:15:00.000000', '2026-03-02 08:50:00.000000', '2026-03-02 08:50:00.000000',
+       'STAFF', 'GMS-20260302-0014', 'Tài trợ đầu tháng cho sách vùng cao.', 1, 202603020014, 'BANK_TRANSFER_OFFLINE',
+       'contact@anphat-co.local', 'Công ty TNHH An Phát', 'CONFIRMED', 'EVENT', 'MONEY', '2026-03-02 09:15:00.000000',
+       NULL, 3, 2, 4, 4),
+
+      (15, 1850000.00, '2026-03-06 14:00:00.000000', '2026-03-06 13:35:00.000000', '2026-03-06 13:35:00.000000',
+       'WEB', 'GMS-20260306-0015', 'Ủng hộ chung tay cùng câu lạc bộ.', 0, 202603060015, 'BANK_TRANSFER_ONLINE',
+       NULL, NULL, 'CONFIRMED', 'EVENT', 'MONEY', '2026-03-06 14:00:00.000000',
+       NULL, 3, NULL, 5, 1),
+
+      (16, 2600000.00, NULL, '2026-03-08 10:30:00.000000', '2026-03-08 10:30:00.000000',
+       'WEB', 'GMS-20260308-0016', 'Chuyển khoản nhưng chưa hoàn tất.', 1, 202603080016, 'BANK_TRANSFER_ONLINE',
+       'minh.nguyen@example.com', 'Nguyễn Văn Minh', 'PENDING_PAYMENT', 'EVENT', 'MONEY', '2026-03-08 10:30:00.000000',
+       NULL, NULL, NULL, 2, 4),
+
+      (17, 3200000.00, NULL, '2026-03-10 09:20:00.000000', '2026-03-10 09:20:00.000000',
+       'STAFF', 'GMS-20260310-0017', 'Cần chờ duyệt do tài trợ số tiền lớn hơn ngưỡng.', 1, 202603100017, 'BANK_TRANSFER_OFFLINE',
+       'csr@thientam-group.local', 'Thiện Tâm Group', 'PENDING_APPROVED', 'EVENT', 'MONEY', '2026-03-10 09:20:00.000000',
+       NULL, NULL, 2, 5, 1),
+
+      (18, 600000.00, NULL, '2026-03-12 15:10:00.000000', '2026-03-12 15:10:00.000000',
+       'WEB', 'GMS-20260312-0018', 'Nhập nhầm thông tin nên yêu cầu hủy.', 0, 202603120018, 'BANK_TRANSFER_ONLINE',
+       NULL, NULL, 'CANCELLED', 'EVENT', 'MONEY', '2026-03-12 15:20:00.000000',
+       NULL, NULL, NULL, 1, 3),
+
+      (19, 1100000.00, NULL, '2026-03-14 11:45:00.000000', '2026-03-14 11:45:00.000000',
+       'WEB', 'GMS-20260314-0019', 'Giao dịch lỗi ngân hàng.', 0, 202603140019, 'BANK_TRANSFER_ONLINE',
+       NULL, NULL, 'FAILED', 'ACTIVITY', 'MONEY', '2026-03-14 11:45:00.000000',
+       1, NULL, NULL, 3, NULL),
+
+      (20, 1400000.00, NULL, '2026-03-16 16:05:00.000000', '2026-03-16 16:05:00.000000',
+       'WEB', 'GMS-20260316-0020', 'Không đạt điều kiện xác nhận hồ sơ.', 0, 202603160020, 'BANK_TRANSFER_OFFLINE',
+       NULL, NULL, 'REJECTED', 'EVENT', 'MONEY', '2026-03-16 16:30:00.000000',
+       NULL, NULL, NULL, 2, 3);
+
+-- 11) donation_transactions (6 dòng)
+INSERT INTO donation_transactions (
+    id, donation_id, amount, payment_method, created_at, updated_at,
+    account_bank_id, counter_account_name, counter_account_number,
+    description, raw_api_data, transaction_code, transaction_date_time
+) VALUES
+      (1, 1,  500000.00,  'BANK_TRANSFER_ONLINE',  '2026-02-10 10:30:00.000000', '2026-02-10 10:30:00.000000',
+       'BANKTXN-20260210-0001', 'PHAM THI LAN',     '970400000001', 'Ung ho dot 1 phau thuat', NULL, 'FT2602100001', '2026-02-10 10:29:10'),
+
+      (2, 2,  2000000.00, 'BANK_TRANSFER_OFFLINE', '2026-02-11 09:10:30.000000', '2026-02-11 09:10:30.000000',
+       'BANKTXN-20260211-0002', 'NGUYEN VAN MINH',  '970400000002', 'Ung ho sach vung cao', NULL, 'FT2602110002', '2026-02-11 09:08:42'),
+
+      (3, 3,  30000000.00,'BANK_TRANSFER_OFFLINE', '2026-02-12 14:25:00.000000', '2026-02-12 14:25:00.000000',
+       'BANKTXN-20260212-0003', 'AN PHAT CO LTD',   '970400000003', 'Tai tro Tet am Mien Trung', NULL, 'FT2602120003', '2026-02-12 14:21:05'),
+
+      (4, 4,  1500000.00, 'BANK_TRANSFER_ONLINE',  '2026-02-13 09:00:00.000000', '2026-02-13 09:00:00.000000',
+       'BANKTXN-20260213-0004', 'TRAN NGOC HUONG',  '970400000004', 'Ung ho mua sach dot 1', NULL, 'FT2602130004', '2026-02-13 08:56:30'),
+
+      (5, 9,  250000.00,  'BANK_TRANSFER_ONLINE',  '2026-02-18 09:20:00.000000', '2026-02-18 09:20:00.000000',
+       'BANKTXN-20260218-0009', 'PHAM THI LAN',     '970400000005', 'Ung ho chung hoat dong CLB', NULL, 'FT2602180009', '2026-02-18 09:19:05'),
+
+      (6, 10, 3500000.00, 'BANK_TRANSFER_OFFLINE', '2026-02-19 13:35:00.000000', '2026-02-19 13:35:00.000000',
+       'BANKTXN-20260219-0010', 'THIEN TAM GROUP',  '970400000006', 'Ung ho dot 1 phau thuat', NULL, 'FT2602190010', '2026-02-19 13:31:18');
+
+-- 12) attachments (5 dòng)
+INSERT INTO attachments (id, object_id, file_url, file_name, entity_type, file_type) VALUES
+                                                                                         (1, 1,  'https://example.com/uploads/2026/02/bienlai-phauthuat-dot1.pdf', 'bienlai-phauthuat-dot1.pdf', 'ACTIVITY', 'PDF'),
+                                                                                         (2, 3,  'https://example.com/uploads/2026/02/anh-trao-qua-quang-nam-01.jpg', 'anh-trao-qua-quang-nam-01.jpg', 'ACTIVITY', 'IMAGE'),
+                                                                                         (3, 1,  'https://example.com/uploads/2026/02/ck-gms-20260210-0001.png',     'ck-gms-20260210-0001.png',     'DONATION', 'IMAGE'),
+                                                                                         (4, 2,  'https://example.com/uploads/2026/02/bao-cao-tet-am-2026.docx',     'bao-cao-tet-am-2026.docx',     'EVENT', 'DOCUMENT'),
+                                                                                         (5, 999,'https://example.com/uploads/2026/02/bai-viet-gioi-thieu.mp4',      'bai-viet-gioi-thieu.mp4',      'EVENT', 'VIDEO');

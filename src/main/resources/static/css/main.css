@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+* {
+    box-sizing: border-box;
+}
+
+@theme {
+    --color-brand: #389663;
+    --color-primary: #389663;
+    --color-primary-light: #e0f1e6;
+    --color-background-light: #f4faf6;
+    --color-background-dark: #102117;
+    --color-surface-light: #ffffff;
+    --color-surface-dark: #183326;
+    --color-border-light: #d7e7dd;
+    --color-border-dark: #2d4a38;
+}
+
+body {
+    font-family: Inter, sans-serif;
+}
+
+@layer components {
+    .donation-status-badge {
+        @apply inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold;
+    }
+
+    .donation-status-pending-approved {
+        @apply border-amber-200 bg-amber-100 text-amber-800;
+    }
+
+    .donation-status-pending-payment {
+        @apply border-yellow-200 bg-yellow-100 text-yellow-800;
+    }
+
+    .donation-status-confirmed {
+        @apply border-emerald-200 bg-emerald-100 text-emerald-800;
+    }
+
+    .donation-status-rejected {
+        @apply border-red-200 bg-red-100 text-red-700;
+    }
+
+    .donation-status-failed,
+    .donation-status-cancelled {
+        @apply border-slate-200 bg-slate-100 text-slate-700;
+    }
+}
+
+/* CKEditor content readability and list marker fix */
+.ck-content,
+.prose.ck-content {
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+.ck-content ul,
+.prose.ck-content ul {
+    list-style: disc;
+    margin: 0.75rem 0;
+    padding-left: 1.5rem;
+}
+
+.ck-content ol,
+.prose.ck-content ol {
+    list-style: decimal;
+    margin: 0.75rem 0;
+    padding-left: 1.5rem;
+}
+
+.ck-content li,
+.prose.ck-content li {
+    margin: 0.25rem 0;
+}
+
+.ck-content ul ul,
+.prose.ck-content ul ul {
+    list-style: circle;
+}
+
+.ck-content ol ol,
+.prose.ck-content ol ol {
+    list-style: lower-alpha;
+}

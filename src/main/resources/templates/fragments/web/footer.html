@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<footer th:fragment="footer"
+        class="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 pt-16 pb-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+            <!-- Brand & Description -->
+            <div>
+                <div class="flex items-center gap-2 mb-4">
+                    <img th:src="@{/images/logo.jpg}"
+                         alt="Logo CLB"
+                         class="w-10 h-10 rounded-lg object-cover ring-1 ring-slate-200">
+                    <span class="font-bold text-xl text-slate-900 dark:text-white">Dự án <span class="text-primary">Chia sẻ yêu thương</span></span>
+                </div>
+                <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">
+                    Kết nối cộng đồng, lan tỏa lòng nhân ái và đồng hành cùng những hoàn cảnh cần được hỗ trợ bằng các hoạt động minh bạch.
+                </p>
+                <div class="flex items-center space-x-4">
+                    <a class="text-slate-400 hover:text-primary transition-colors"
+                       target="_blank" rel="noopener noreferrer" href="https://www.facebook.com/biennho.hanh"><span
+                            class="sr-only">Facebook</span>
+                        <svg class="h-6 w-6" fill="currentColor" viewbox="0 0 24 24">
+                            <path clip-rule="evenodd"
+                                  d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
+                                  fill-rule="evenodd"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <!-- Navigation Links -->
+            <div>
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4">Điều hướng</h3>
+                <ul class="space-y-3">
+                    <li><a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm"
+                           th:href="@{/}">Trang chủ</a></li>
+                    <li><a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm"
+                           th:href="@{/su-kien}">Sự kiện</a></li>
+                    <li><a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm"
+                           th:href="@{/quyen-gop}">Quyên góp</a></li>
+                    <li><a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm"
+                           th:href="@{/ve-chung-toi}">Về chúng tôi</a></li>
+                </ul>
+            </div>
+            <!-- Resources -->
+            <div>
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4">
+                    Hỗ trợ</h3>
+                <ul class="space-y-3">
+                    <li><a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm"
+                           th:href="@{/quyen-gop}">Hướng dẫn quyên góp</a></li>
+                    <li><a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm"
+                           th:href="@{/su-kien}">Xem các sự kiện</a></li>
+                    <li><a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm"
+                           th:href="@{/ve-chung-toi}">Thông tin dự án</a></li>
+                    <li><a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm"
+                           th:href="@{/lien-he}">Gửi liên hệ</a></li>
+                </ul>
+            </div>
+            <!-- Contact -->
+            <div>
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4">Liên hệ</h3>
+                <ul class="space-y-3">
+                    <li class="flex items-start">
+                        <span class="material-icons text-slate-400 text-sm mr-2 mt-0.5">place</span>
+                        <span class="text-slate-600 dark:text-slate-400 text-sm">25 An Nhơn 2, An Hải, Thành Phố Đà Nẵng</span>
+                    </li>
+                    <li class="flex items-center">
+                        <span class="material-icons text-slate-400 text-sm mr-2">email</span>
+                        <a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm"
+                           href="mailto:contact@chiaseyeuthuong.vn">contact@chiaseyeuthuong.vn</a>
+                    </li>
+                    <li class="flex items-center">
+                        <span class="material-icons text-slate-400 text-sm mr-2">phone</span>
+                        <a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm"
+                           href="tel:+84982746462">+84 982 746 462</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="border-t border-slate-200 dark:border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+            <p class="text-slate-500 dark:text-slate-500 text-sm mb-4 md:mb-0">
+                © 2026 Dự án Chia sẻ yêu thương. Bảo lưu mọi quyền.
+            </p>
+            <div class="flex space-x-6">
+                <a class="text-slate-500 hover:text-primary text-sm" th:href="@{/}">Trang chủ</a>
+                <a class="text-slate-500 hover:text-primary text-sm" th:href="@{/su-kien}">Sự kiện</a>
+                <a class="text-slate-500 hover:text-primary text-sm" th:href="@{/quyen-gop}">Quyên góp</a>
+                <a class="text-slate-500 hover:text-primary text-sm" th:href="@{/lien-he}">Liên hệ</a>
+            </div>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

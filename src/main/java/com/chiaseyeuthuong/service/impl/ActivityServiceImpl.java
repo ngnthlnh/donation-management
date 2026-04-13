@@ -1,0 +1,276 @@
+package com.chiaseyeuthuong.service.impl;
+
+import com.chiaseyeuthuong.common.EActivityStatus;
+import com.chiaseyeuthuong.common.EEntityType;
+import com.chiaseyeuthuong.dto.request.ActivityRequest;
+import com.chiaseyeuthuong.dto.response.ActivityDetailTabsSummaryResponse;
+import com.chiaseyeuthuong.dto.response.ActivityResponse;
+import com.chiaseyeuthuong.dto.response.DonationResponse;
+import com.chiaseyeuthuong.dto.response.DonorResponse;
+import com.chiaseyeuthuong.dto.response.EventResponse;
+import com.chiaseyeuthuong.dto.response.PageResponse;
+import com.chiaseyeuthuong.exception.ResourceNotFoundException;
+import com.chiaseyeuthuong.model.Activity;
+import com.chiaseyeuthuong.model.Event;
+import com.chiaseyeuthuong.repository.ActivityRepository;
+import com.chiaseyeuthuong.repository.DonationRepository;
+import com.chiaseyeuthuong.repository.EventRepository;
+import com.chiaseyeuthuong.service.ActivityService;
+import com.chiaseyeuthuong.service.AuditLogService;
+import com.chiaseyeuthuong.service.DonationService;
+import com.chiaseyeuthuong.service.ActivitySpecification;
+import com.chiaseyeuthuong.service.DonorService;
+import com.github.slugify.Slugify;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import static com.chiaseyeuthuong.service.impl.EventServiceImpl.UPLOAD_DIR;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j(topic = "ACTIVITY-SERVICE")
+public class ActivityServiceImpl implements ActivityService {
+
+    private final ActivityRepository activityRepository;
+    private final EventRepository eventRepository;
+    private final DonationRepository donationRepository;
+    private final DonorService donorService;
+    private final DonationService donationService;
+    private final AuditLogService auditLogService;
+
+    @Override
+    public PageResponse<ActivityResponse> getAllActivities(int page, int size, String search, EActivityStatus status, boolean excludeDraft) {
+
+        int pageNumber = (page > 0) ? page - 1 : 0;
+
+        PageRequest pageRequest = PageRequest.of(pageNumber, size, Sort.by(Sort.Direction.DESC, "id"));
+
+        Specification<Activity> specification = ActivitySpecification.filterActivity(search, status, excludeDraft);
+
+        Page<Activity> pageActivities = activityRepository.findAll(specification, pageRequest);
+
+        List<ActivityResponse> response = pageActivities.stream().map(this::toResponse).toList();
+
+        return PageResponse.<ActivityResponse>builder()
+                .page(page)
+                .pageSize(size)
+                .totalItems(pageActivities.getTotalElements())
+                .totalPages(pageActivities.getTotalPages())
+                .data(response)
+                .build();
+    }
+
+    @Override
+    public List<ActivityResponse> getAllActivitiesByEventId(Long eventId) {
+        return activityRepository.findAllByEventId(eventId).stream()
+                .filter(activity -> !EActivityStatus.DRAFT.equals(activity.getStatus()))
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
+    public PageResponse<ActivityResponse> getActivitiesByEventId(Long eventId, int page, int size) {
+        int pageNumber = (page > 0) ? page - 1 : 0;
+        int safeSize = size > 0 ? size : 10;
+
+        PageRequest pageRequest = PageRequest.of(pageNumber, safeSize, Sort.by(Sort.Direction.DESC, "id"));
+        Page<Activity> activityPage = activityRepository.findByEventId(eventId, pageRequest);
+
+        List<ActivityResponse> response = activityPage.getContent()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+
+        return PageResponse.<ActivityResponse>builder()
+                .page(pageNumber + 1)
+                .pageSize(safeSize)
+                .totalItems(activityPage.getTotalElements())
+                .totalPages(activityPage.getTotalPages())
+                .data(response)
+                .build();
+    }
+
+    @Override
+    public Long saveActivity(ActivityRequest request) {
+        log.info("Processing saving activity from eventId {} ", request.getEventId());
+
+        Event event = eventRepository.findById(request.getEventId()).orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+
+        boolean isCreate = request.getId() == null;
+        Activity activity = isCreate ? new Activity() : getActivity(request.getId());
+        Map<String, Object> beforeValues = isCreate ? Map.of() : buildActivityAuditMap(activity);
+
+        activity.setEvent(event);
+        activity.setName(request.getName());
+        activity.setContent(request.getContent());
+        activity.setShortDescription(request.getShortDescription());
+        activity.setLocation(request.getLocation());
+        activity.setStartDate(request.getStartDate());
+        activity.setEndDate(request.getEndDate());
+        activity.setCurrentAmount(defaultAmount(request.getCurrentAmount()));
+        activity.setTargetAmount(defaultAmount(request.getTargetAmount()));
+        activity.setThumbnailUrl(request.getThumbnailUrl());
+        activity.setStatus(request.getStatus());
+
+        Slugify slugify = Slugify.builder().build();
+        String slug = slugify.slugify(request.getName());
+        activity.setSlug(slug);
+
+        Activity result = activityRepository.save(activity);
+
+        log.info("Saved activity {} ", result.getId());
+        Map<String, Object> afterValues = buildActivityAuditMap(result);
+        if (isCreate) {
+            auditLogService.logCreate(EEntityType.ACTIVITY, result.getId(), "Tạo mới hoạt động", afterValues);
+        } else {
+            auditLogService.logUpdate(EEntityType.ACTIVITY, result.getId(), "Cập nhật hoạt động", beforeValues, afterValues);
+        }
+        return result.getId();
+    }
+
+    @Override
+    public Activity getActivity(Long id) {
+        return activityRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Activity not found"));
+    }
+
+    @Override
+    public ActivityResponse getActivityById(Long id) {
+        return toResponse(getActivity(id));
+    }
+
+    @Override
+    public ActivityResponse getActivityBySlug(String slug) {
+        Activity activity = activityRepository.findBySlug(slug).orElseThrow(() -> new ResourceNotFoundException("Activity not found"));
+        return toResponse(activity);
+    }
+
+    @Override
+    public ActivityResponse getPublicActivityBySlug(String slug) {
+        Activity activity = activityRepository.findBySlug(slug).orElseThrow(() -> new ResourceNotFoundException("Activity not found"));
+        if (EActivityStatus.DRAFT.equals(activity.getStatus())
+                || (activity.getEvent() != null && com.chiaseyeuthuong.common.EEventStatus.DRAFT.equals(activity.getEvent().getStatus()))) {
+            throw new ResourceNotFoundException("Activity not found");
+        }
+        return toResponse(activity);
+    }
+
+    @Override
+    public void updateCurrentAmount(Activity activity, BigDecimal amount) {
+        BigDecimal newCurrentAmount = defaultAmount(activity.getCurrentAmount()).add(amount);
+        activity.setCurrentAmount(newCurrentAmount);
+        activityRepository.save(activity);
+
+        log.info("Updated current amount={} for activityId={} ", newCurrentAmount, activity.getId());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String saveThumbnailUrl(Long id, MultipartFile file) {
+        try {
+            Activity activity = null;
+            if (id != null) {
+                activity = getActivity(id);
+            }
+            File directory = new File(UPLOAD_DIR);
+            if (!directory.exists()) directory.mkdirs();
+
+            String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            Path filePath = Paths.get(UPLOAD_DIR + fileName);
+
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            String fileUrl = "/uploads/thumbnails/" + fileName;
+
+            if (activity != null) {
+                activity.setThumbnailUrl(fileUrl);
+                activityRepository.save(activity);
+                log.info("Saved thumbnail url activity {} ", activity.getId());
+                log.info("Saved thumbnail url {} ", activity.getThumbnailUrl());
+            } else {
+                log.info("Saved thumbnail url without activity reference");
+            }
+
+            return fileUrl;
+        } catch (IOException e) {
+            log.error("Cannot save thumbnail caused: {}", e.getMessage(), e);
+            throw new RuntimeException("Cannot save thumbnail url caused ", e);
+        }
+    }
+
+    @Override
+    public long getActivityCount() {
+        return activityRepository.count();
+    }
+
+    @Override
+    public ActivityDetailTabsSummaryResponse getActivityDetailTabsSummary(Long activityId) {
+        getActivity(activityId);
+        return ActivityDetailTabsSummaryResponse.builder()
+                .donorCount(donorService.getDorCountByObjectId(activityId, EEntityType.ACTIVITY))
+                .donationCount(donationRepository.countByActivityId(activityId))
+                .build();
+    }
+
+    @Override
+    public PageResponse<DonorResponse> getActivityDetailDonors(Long activityId, int page, int size) {
+        getActivity(activityId);
+        return donorService.getDonorsByActivityId(activityId, page, size);
+    }
+
+    @Override
+    public PageResponse<DonationResponse> getActivityDetailDonations(Long activityId, int page, int size) {
+        getActivity(activityId);
+        return donationService.getDonationsByActivityId(activityId, page, size);
+    }
+
+    private ActivityResponse toResponse(Activity activity) {
+        ActivityResponse activityResponse = new ActivityResponse();
+        BeanUtils.copyProperties(activity, activityResponse);
+        activityResponse.setNumberOfDonors(donorService.getDorCountByObjectId(activity.getId(), EEntityType.ACTIVITY));
+        EventResponse eventResponse = new EventResponse();
+        BeanUtils.copyProperties(activity.getEvent(), eventResponse);
+        activityResponse.setEvent(eventResponse);
+        activityResponse.setEventId(activity.getEvent().getId());
+        return activityResponse;
+    }
+
+    private Map<String, Object> buildActivityAuditMap(Activity activity) {
+        Map<String, Object> values = new LinkedHashMap<>();
+        values.put("eventId", activity.getEvent() != null ? activity.getEvent().getId() : null);
+        values.put("name", activity.getName());
+        values.put("slug", activity.getSlug());
+        values.put("status", activity.getStatus() != null ? activity.getStatus().name() : null);
+        values.put("shortDescription", activity.getShortDescription());
+        values.put("location", activity.getLocation());
+        values.put("startDate", activity.getStartDate());
+        values.put("endDate", activity.getEndDate());
+        values.put("targetAmount", activity.getTargetAmount());
+        values.put("currentAmount", activity.getCurrentAmount());
+        values.put("thumbnailUrl", activity.getThumbnailUrl());
+        return values;
+    }
+
+    private BigDecimal defaultAmount(BigDecimal amount) {
+        return amount != null ? amount : BigDecimal.ZERO;
+    }
+}
